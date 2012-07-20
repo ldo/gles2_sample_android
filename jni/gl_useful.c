@@ -38,9 +38,7 @@ static jstring get_shader_info_log
   {
     const size_t msgmax = 4096; /* should be plenty big enough */
     char * const msg = calloc(1, msgmax);
-    size_t msglen;
-    glGetShaderInfoLog(shader_id, msgmax, &msglen, msg);
-    __android_log_print(ANDROID_LOG_DEBUG, "GLUseful.get_shader_info_log", "GetShaderInfoLog(%d) = “%s”\n", msglen, msg); /* debug */
+    glGetShaderInfoLog(shader_id, msgmax, 0, msg);
     const jstring result = JNNewStringUTF(env, msg);
     free(msg);
     return
