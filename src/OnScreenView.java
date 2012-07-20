@@ -40,8 +40,7 @@ public class OnScreenView
             Runnable
       {
       /* Note I ignore the passed GL10 argument, and exclusively use
-        static methods from GLES20 class for all OpenGL drawing, since
-        this seems to be the preferred way */
+        static methods from GLES20 class for all OpenGL drawing */
         final SpinningArrow ArrowShape = new SpinningArrow();
         final Repeater Repeating;
 

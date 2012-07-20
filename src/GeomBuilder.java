@@ -1,7 +1,8 @@
 package nz.gen.geek_central.GLUseful;
 /*
-    Easy construction and application of buffers needed for
-    OpenGL-ES drawing.
+    Easy construction and application of buffers needed for OpenGL-ES drawing.
+    This version is for OpenGL-ES 2.0 and allows customization of the vertex
+    shader for control of material properties, lighting etc.
 
     Copyright 2011, 2012 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
@@ -276,7 +277,8 @@ public class GeomBuilder
             IntBuffer ColorBuffer, /* optional */
             ShortBuffer IndexBuffer,
             int NrIndexes,
-            ShaderVarDef[] Uniforms, /* optional additional uniform variable definitions */
+            ShaderVarDef[] Uniforms,
+              /* optional additional uniform variable definitions for vertex shader */
             String VertexColorCalc,
               /* optional, compiled as part of vertex shader to implement lighting etc, must
                 assign values to "front_color" and "back_color" variables */
@@ -460,7 +462,8 @@ public class GeomBuilder
 
     public Obj MakeObj
       (
-        ShaderVarDef[] Uniforms, /* optional additional uniform variable definitions */
+        ShaderVarDef[] Uniforms,
+          /* optional additional uniform variable definitions for vertex shader */
         String VertexColorCalc
           /* optional, compiled as part of vertex shader to implement lighting etc, must
             assign values to "front_color" and "back_color" variables */
