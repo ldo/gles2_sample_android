@@ -170,9 +170,9 @@ public class SpinningArrow
       {
         gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
-        final float Azi = (float)(180.0 * AtTime);
-        final float Elev = (float)(90.0 * Math.sin(0.5 * Math.PI * AtTime));
-        final float Roll = (float)(18.0 * Math.sin(0.5 * Math.PI * AtTime));
+        final float Azi = (float)(Math.PI * AtTime);
+        final float Elev = (float)(Math.PI / 2.0 * Math.sin(0.5 * Math.PI * AtTime));
+        final float Roll = (float)(Math.PI / 10.0 * Math.sin(0.5 * Math.PI * AtTime));
         ArrowShape.Draw
           (
             /*ProjectionMatrix =*/ ProjectionMatrix,
