@@ -121,11 +121,60 @@ public class SpinningArrow
                 /*TexCoord = */ null,
                 /*VertexColor =*/ null,
                 /*NrSectors =*/ NrSectors,
-                /*Uniforms =*/ null,
+                /*Uniforms =*/
+                    new GeomBuilder.ShaderVarDef[]
+                        {
+                            new GeomBuilder.ShaderVarDef("light_direction", GeomBuilder.ShaderVarTypes.TYPE_VEC3),
+                            new GeomBuilder.ShaderVarDef("light_brightness", GeomBuilder.ShaderVarTypes.TYPE_FLOAT),
+                            new GeomBuilder.ShaderVarDef("light_contrast", GeomBuilder.ShaderVarTypes.TYPE_FLOAT),
+                        },
                 /*VertexColorCalc =*/
                         "    float attenuate = 1.2 - 0.4 * gl_Position.z;\n"
                     +
-                        "    front_color = vec4(vec3(0.0, 0.7, 0.3) * attenuate, 1.0);\n"
+                        "    vec3 vertex_color = vec3(0.6, 0.6, 0.36);\n"
+                    +
+                        "    front_color = vec4\n"
+                    +
+                        "      (\n"
+                    +
+                        "            vertex_color\n"
+                    +
+                        "        *\n"
+                    +
+                        "            attenuate\n"
+                    +
+                        "        *\n"
+                    +
+                        "            (\n"
+                    +
+                        "                light_brightness\n"
+                    +
+                        "            -\n"
+                    +
+                        "                light_contrast\n"
+                    +
+                        "            +\n"
+                    +
+                        "                    light_contrast\n"
+                    +
+                        "                *\n"
+                    +
+                        "                    dot\n"
+                    +
+                        "                      (\n"
+                    +
+                        "                        normalize(model_view * vec4(vertex_normal, 1.0)).xyz,\n"
+                    +
+                        "                        normalize(light_direction)\n"
+                    +
+                        "                      )\n"
+                    +
+                        "            ),\n"
+                    +
+                        "        1.0\n"
+                    +
+                        "      );\n"
+                      /* simpleminded non-specular lighting */
                     +
                         "    back_color = vec4(vec3(0.5, 0.5, 0.5) * attenuate, 1.0);\n"
               );
@@ -192,7 +241,13 @@ public class SpinningArrow
                 ).mul(
                     Mat4f.scaling(new Vec3f(2.0f, 2.0f, 2.0f))
                 ),
-            /*Uniforms =*/ null
+            /*Uniforms =*/
+                new GeomBuilder.ShaderVarVal[]
+                    {
+                        new GeomBuilder.ShaderVarVal("light_direction", new float[]{-0.7f, 0.7f, 0.0f}),
+                        new GeomBuilder.ShaderVarVal("light_brightness", 1.0f),
+                        new GeomBuilder.ShaderVarVal("light_contrast", 0.5f),
+                    }
           );
       } /*Draw*/
 
