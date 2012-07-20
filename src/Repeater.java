@@ -1,4 +1,4 @@
-package nz.gen.geek_central.gles2_try;
+package nz.gen.geek_central.gles2_sample;
 /*
     Execution of a repeating task with timing.
 

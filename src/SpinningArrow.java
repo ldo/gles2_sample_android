@@ -1,4 +1,4 @@
-package nz.gen.geek_central.gles2_try;
+package nz.gen.geek_central.gles2_sample;
 /*
     Graphical display of a spinning arrow.
 
@@ -129,53 +129,30 @@ public class SpinningArrow
                             new GeomBuilder.ShaderVarDef("light_contrast", GeomBuilder.ShaderVarTypes.TYPE_FLOAT),
                         },
                 /*VertexColorCalc =*/
-                        "    float attenuate = 1.2 - 0.4 * gl_Position.z;\n"
-                    +
-                        "    vec3 vertex_color = vec3(0.6, 0.6, 0.36);\n"
-                    +
-                        "    front_color = vec4\n"
-                    +
-                        "      (\n"
-                    +
-                        "            vertex_color\n"
-                    +
-                        "        *\n"
-                    +
-                        "            attenuate\n"
-                    +
-                        "        *\n"
-                    +
-                        "            (\n"
-                    +
-                        "                light_brightness\n"
-                    +
-                        "            -\n"
-                    +
-                        "                light_contrast\n"
-                    +
-                        "            +\n"
-                    +
-                        "                    light_contrast\n"
-                    +
-                        "                *\n"
-                    +
-                        "                    dot\n"
-                    +
-                        "                      (\n"
-                    +
-                        "                        normalize(model_view * vec4(vertex_normal, 1.0)).xyz,\n"
-                    +
-                        "                        normalize(light_direction)\n"
-                    +
-                        "                      )\n"
-                    +
-                        "            ),\n"
-                    +
-                        "        1.0\n"
-                    +
-                        "      );\n"
+                        "    float attenuate = 1.2 - 0.4 * gl_Position.z;\n" +
+                        "    vec3 vertex_color = vec3(0.6, 0.6, 0.36);\n" +
+                        "    front_color = vec4\n" +
+                        "      (\n" +
+                        "            vertex_color\n" +
+                        "        *\n" +
+                        "            attenuate\n" +
+                        "        *\n" +
+                        "            (\n" +
+                        "                light_brightness\n" +
+                        "            -\n" +
+                        "                light_contrast\n" +
+                        "            +\n" +
+                        "                    light_contrast\n" +
+                        "                *\n" +
+                        "                    dot\n" +
+                        "                      (\n" +
+                        "                        normalize(model_view * vec4(vertex_normal, 1.0)).xyz,\n" +
+                        "                        normalize(light_direction)\n" +
+                        "                      )\n" +
+                        "            ),\n" +
+                        "        1.0\n" +
+                        "      );\n" +
                       /* simpleminded non-specular lighting */
-                    +
                         "    back_color = vec4(vec3(0.5, 0.5, 0.5) * attenuate, 1.0);\n"
               );
       } /*MakeArrow*/
