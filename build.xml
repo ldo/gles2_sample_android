@@ -22,7 +22,7 @@
     <target name="clean" description="Removes output files created by other targets.">
         <delete dir="${out.absolute.dir}" verbose="${verbose}" />
         <delete dir="${gen.absolute.dir}" verbose="${verbose}" />
-        <delete dir="${native.libs.dir}" verbose="${verbose}" />
+        <delete dir="${native.libs.absolute.dir}" verbose="${verbose}" />
         <delete dir="obj" verbose="${verbose}" />
     </target>
 
