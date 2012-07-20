@@ -413,16 +413,16 @@ public class GeomBuilder
                 throw new RuntimeException("uniform defs/vals mismatch");
               } /*if*/
             gl.glEnableVertexAttribArray(VertexPositionVar);
-            gl.glVertexAttribPointer(0, 3, gl.GL_FIXED, true, 0, VertexBuffer);
+            gl.glVertexAttribPointer(VertexPositionVar, 3, gl.GL_FIXED, true, 0, VertexBuffer);
             if (NormalBuffer != null)
               {
                 gl.glEnableVertexAttribArray(VertexNormalVar);
-                gl.glVertexAttribPointer(0, 3, gl.GL_FIXED, true, 0, NormalBuffer);
+                gl.glVertexAttribPointer(VertexNormalVar, 3, gl.GL_FIXED, true, 0, NormalBuffer);
               } /*if*/
             if (ColorBuffer != null)
               {
                 gl.glEnableVertexAttribArray(VertexColorVar);
-                gl.glVertexAttribPointer(0, 4, gl.GL_FIXED, true, 0, ColorBuffer);
+                gl.glVertexAttribPointer(VertexColorVar, 4, gl.GL_FIXED, true, 0, ColorBuffer);
               } /*if*/
             if (Uniforms != null)
               {
