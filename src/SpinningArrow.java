@@ -122,7 +122,12 @@ public class SpinningArrow
                 /*VertexColor =*/ null,
                 /*NrSectors =*/ NrSectors,
                 /*Uniforms =*/ null,
-                /*VertexColorCalc =*/ null
+                /*VertexColorCalc =*/
+                        "    float attenuate = 1.2 - 0.4 * gl_Position.z;\n"
+                    +
+                        "    front_color = vec4(vec3(0.0, 0.7, 0.3) * attenuate, 1.0);\n"
+                    +
+                        "    back_color = vec4(vec3(0.5, 0.5, 0.5) * attenuate, 1.0);\n"
               );
       } /*MakeArrow*/
 
