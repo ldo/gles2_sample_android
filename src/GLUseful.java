@@ -71,7 +71,8 @@ public class GLUseful
       (
         int ShaderID
       );
-      /* needed because android.opengl.GLES20.glGetShaderInfoLog doesn't return anything */
+      /* needed because android.opengl.GLES20.glGetShaderInfoLog doesn't return anything,
+        at least on Android 2.2. */
 
 /*
     Shader programs

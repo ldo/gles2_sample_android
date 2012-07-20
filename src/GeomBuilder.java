@@ -354,6 +354,8 @@ public class GeomBuilder
               /* vertex shader: */
                 VS.toString(),
               /* fragment shader: */
+                    "precision mediump float;\n"
+                +
                     "varying vec4 front_color, back_color;\n"
                 +
                     "\n"

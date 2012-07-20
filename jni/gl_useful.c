@@ -1,6 +1,7 @@
 /*
     Useful OpenGL stuff. This provides an alternative to the broken
-    android.opengl.GLES20.glGetShaderInfoLog routine.
+    android.opengl.GLES20.glGetShaderInfoLog routine on older Android
+    versions.
 
     Copyright 2012 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
@@ -31,10 +32,10 @@ static jstring get_shader_info_log
     jobject this,
     jint shader_id
   )
-  /* needed because android.opengl.GLES20.glGetShaderInfoLog doesn't return anything.
-    The bug appears to be that glGetShaderiv of GL_INFO_LOG_LENGTH returns 0,
-    according to this bug report <http://code.google.com/p/android/issues/detail?id=9953>,
-    so I must avoid using that. */
+  /* needed because android.opengl.GLES20.glGetShaderInfoLog doesn't return anything,
+    at least on Android 2.2. The bug appears to be that glGetShaderiv of GL_INFO_LOG_LENGTH
+    returns 0, according to this bug report
+    <http://code.google.com/p/android/issues/detail?id=9953>, so I must avoid using that. */
   {
     const size_t msgmax = 4096; /* should be plenty big enough */
     char * const msg = calloc(1, msgmax);
