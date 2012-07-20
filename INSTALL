@@ -1,0 +1,58 @@
+To build the app for Android, you will need the Android SDK and NDK,
+available from <http://developer.android.com/>, along with their
+prerequisites, including a Java developer kit (either OpenJDK or the
+Sun JDK) and Ant.
+
+You will need to add a couple of files to the top of the source
+tree: local.properties, and keystore.properties. These are excluded
+from the Git repository because their contents are specific to your
+setup.
+
+local.properties defines properties sdk.dir, which points to the
+top-level directory where you installed the Android SDK, and ndk.dir,
+which points to the top-level directory where you installed the Android
+NDK. E.g.
+
+    sdk.dir=/path/to/android-sdk-linux_x86
+    ndk.dir=/path/to/android-ndk-r8
+
+keystore.properties defines three properties to do with signing of
+the application package: keystore.path is the path to your keystore
+file, keystore.alias is the name (alias) of the key in the keystore
+to use, and keystore.password is the password for accessing that key.
+E.g.
+
+    keystore.path=/home/ldo/my.keystore
+    keystore.alias=my-key
+    keystore.password=please
+
+Because it has to contain a password, I would recommend you do NOT make
+this file readable by anybody but its owner.
+
+If you don't already have a keystore, you can create one with
+the JDK keytool command, something like this:
+
+    keytool -genkeypair -keystore keystorename -storepass keystorepassword \
+        -keyalg RSA -validity $((25 * 365)) -alias keyalias -keysize 2048 \
+        -dname "CN=J Random Hacker, O=HackerCo, L=Anytown, ST=Anystate, C=US" 
+
+substituting your own filename for keystorename, your own password
+for storepass, your own name for the key for keyalias, and of course
+your own identification details in the value for -dname.
+
+Now you should be able to build the complete package with the
+following command:
+
+    ant signed
+
+If this completes without errors, you should have a file
+bin/on_vs_offscreen-release.apk, which is the application package.
+
+You can also install this automatically to an Android device
+connected via USB. First, make sure "USB Debugging" is enabled
+on that device. Now do
+
+    ant install
+
+which will invoke the building and signing, and then install the
+package on the default connected Android device.
