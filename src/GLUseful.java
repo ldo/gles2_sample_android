@@ -17,6 +17,12 @@ package nz.gen.geek_central.GLUseful;
     the License.
 */
 
+import java.util.ArrayList;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.nio.ByteOrder;
+
 public class GLUseful
   {
     public static final android.opengl.GLES20 gl = new android.opengl.GLES20(); /* for easier references */
@@ -98,6 +104,94 @@ public class GLUseful
           } /*Color*/
 
       } /*Color*/;
+
+/*
+    Vertex arrays
+
+    Need to use allocateDirect to allocate buffers so garbage
+    collector won't move them. Also make sure byte order is
+    always native. But direct-allocation and order-setting methods
+    are only available for ByteBuffer. Which is why buffers
+    are allocated as ByteBuffers and then converted to more
+    appropriate types.
+*/
+
+    public static final int Fixed1 = 0x10000; /* for converting between float & fixed values */
+
+    public static IntBuffer MakeFixedVec3Buffer
+      (
+        ArrayList<Vec3f> FromArray
+      )
+      /* converts the values in FromArray to fixed and returns them
+        in an IntBuffer suitable for passing to glVertexAttribPointer. */
+      {
+        final int[] Vals = new int[FromArray.size() * 3];
+        int jv = 0;
+        for (int i = 0; i < FromArray.size(); ++i)
+          {
+            final Vec3f Vec = FromArray.get(i);
+            Vals[jv++] = (int)(Vec.x * Fixed1);
+            Vals[jv++] = (int)(Vec.y * Fixed1);
+            Vals[jv++] = (int)(Vec.z * Fixed1);
+          } /*for*/
+        final IntBuffer Result =
+            ByteBuffer.allocateDirect(Vals.length * 4)
+            .order(ByteOrder.nativeOrder())
+            .asIntBuffer()
+            .put(Vals);
+        Result.position(0);
+        return
+            Result;
+      } /*MakeFixedVec3Buffer*/
+
+    public static IntBuffer MakeFixedColorBuffer
+      (
+        ArrayList<Color> FromArray
+      )
+      /* converts the values in FromArray to fixed and returns them
+        in an IntBuffer suitable for passing to glVertexAttribPointer. */
+      {
+        final int[] Vals = new int[FromArray.size() * 4];
+        int jv = 0;
+        for (int i = 0; i < FromArray.size(); ++i)
+          {
+            final Color Val = FromArray.get(i);
+            Vals[jv++] = (int)(Val.r * Fixed1);
+            Vals[jv++] = (int)(Val.g * Fixed1);
+            Vals[jv++] = (int)(Val.b * Fixed1);
+            Vals[jv++] = (int)(Val.a * Fixed1);
+          } /*for*/
+        final IntBuffer Result =
+            ByteBuffer.allocateDirect(Vals.length * 4)
+            .order(ByteOrder.nativeOrder())
+            .asIntBuffer()
+            .put(Vals);
+        Result.position(0);
+        return
+            Result;
+      } /*MakeFixedColorBuffer*/
+
+    public static ShortBuffer MakeVertIndexBuffer
+      (
+        ArrayList<Integer> FromArray
+      )
+      /* converts the indices in FromArray into a ShortBuffer suitable for
+        passing to glDrawElements. */
+      {
+        final short[] Indices = new short[FromArray.size()];
+        for (int i = 0; i < Indices.length; ++i)
+          {
+            Indices[i] = (short)(int)FromArray.get(i);
+          } /*for*/
+        final ShortBuffer IndexBuffer =
+            ByteBuffer.allocateDirect(Indices.length * 2)
+            .order(ByteOrder.nativeOrder())
+            .asShortBuffer()
+            .put(Indices);
+        IndexBuffer.position(0);
+        return
+            IndexBuffer;
+      } /*MakeVertIndexBuffer*/
 
 /*
     Shader programs

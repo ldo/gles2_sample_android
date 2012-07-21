@@ -20,10 +20,8 @@ package nz.gen.geek_central.GLUseful;
 */
 
 import java.util.ArrayList;
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.nio.ByteOrder;
 import nz.gen.geek_central.GLUseful.GLUseful;
 
 public class GeomBuilder
@@ -444,118 +442,27 @@ public class GeomBuilder
           {
             throw new RuntimeException("GeomBuilder: empty object");
           } /*if*/
-        final int Fixed1 = 0x10000;
-        final int[] Vertices = new int[Points.size() * 3];
-        final int[] Normals = PointNormals != null ? new int[Points.size() * 3] : null;
-        final int[] TexCoords = PointTexCoords != null ? new int[Points.size() * 3] : null;
-        final int[] Colors = PointColors != null ? new int[Points.size() * 4] : null;
-        int jv = 0, jn = 0, jt = 0, jc = 0;
-        for (int i = 0; i < Points.size(); ++i)
-          {
-            final Vec3f Point = Points.get(i);
-            Vertices[jv++] = (int)(Point.x * Fixed1);
-            Vertices[jv++] = (int)(Point.y * Fixed1);
-            Vertices[jv++] = (int)(Point.z * Fixed1);
-            if (PointNormals != null)
-              {
-                final Vec3f PointNormal = PointNormals.get(i);
-                Normals[jn++] = (int)(PointNormal.x * Fixed1);
-                Normals[jn++] = (int)(PointNormal.y * Fixed1);
-                Normals[jn++] = (int)(PointNormal.z * Fixed1);
-              } /*if*/
-            if (PointTexCoords != null)
-              {
-                final Vec3f Coord = PointTexCoords.get(i);
-                TexCoords[jt++] = (int)(Coord.x * Fixed1);
-                TexCoords[jt++] = (int)(Coord.y * Fixed1);
-                TexCoords[jt++] = (int)(Coord.z * Fixed1);
-              } /*if*/
-            if (PointColors != null)
-              {
-                final GLUseful.Color ThisColor = PointColors.get(i);
-                Colors[jc++] = (int)(ThisColor.r * Fixed1);
-                Colors[jc++] = (int)(ThisColor.g * Fixed1);
-                Colors[jc++] = (int)(ThisColor.b * Fixed1);
-                Colors[jc++] = (int)(ThisColor.a * Fixed1);
-              } /*if*/
-          } /*for*/
-        final short[] Indices = new short[Faces.size()];
-        final int NrIndexes = Indices.length;
-        for (int i = 0; i < NrIndexes; ++i)
-          {
-            Indices[i] = (short)(int)Faces.get(i);
-          } /*for*/
-      /* Need to use allocateDirect to allocate buffers so garbage
-        collector won't move them. Also make sure byte order is
-        always native. But direct-allocation and order-setting methods
-        are only available for ByteBuffer. Which is why buffers
-        are allocated as ByteBuffers and then converted to more
-        appropriate types. */
-        final IntBuffer VertexBuffer;
-        final IntBuffer NormalBuffer;
-        final IntBuffer TexCoordBuffer;
-        final IntBuffer ColorBuffer;
-        final ShortBuffer IndexBuffer;
-        VertexBuffer =
-            ByteBuffer.allocateDirect(Vertices.length * 4)
-            .order(ByteOrder.nativeOrder())
-            .asIntBuffer()
-            .put(Vertices);
-        VertexBuffer.position(0);
-        if (PointNormals != null)
-          {
-            NormalBuffer =
-                ByteBuffer.allocateDirect(Normals.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asIntBuffer()
-                .put(Normals);
-            NormalBuffer.position(0);
-          }
-        else
-          {
-            NormalBuffer = null;
-          } /*if*/
-        if (PointTexCoords != null)
-          {
-            TexCoordBuffer =
-                ByteBuffer.allocateDirect(TexCoords.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asIntBuffer()
-                .put(TexCoords);
-            TexCoordBuffer.position(0);
-          }
-        else
-          {
-            TexCoordBuffer = null;
-          } /*if*/
-        if (PointColors != null)
-          {
-            ColorBuffer =
-                ByteBuffer.allocateDirect(Colors.length * 4)
-                .order(ByteOrder.nativeOrder())
-                .asIntBuffer()
-                .put(Colors);
-            ColorBuffer.position(0);
-          }
-        else
-          {
-            ColorBuffer = null;
-          } /*if*/
-        IndexBuffer =
-            ByteBuffer.allocateDirect(Indices.length * 2)
-            .order(ByteOrder.nativeOrder())
-            .asShortBuffer()
-            .put(Indices);
-        IndexBuffer.position(0);
         return
             new Obj
               (
-                VertexBuffer,
-                NormalBuffer,
-                TexCoordBuffer,
-                ColorBuffer,
-                IndexBuffer,
-                NrIndexes,
+                /*VertexBuffer =*/ GLUseful.MakeFixedVec3Buffer(Points),
+                /*NormalBuffer =*/
+                    PointNormals != null ?
+                        GLUseful.MakeFixedVec3Buffer(PointNormals)
+                    :
+                        null,
+                /*TexCoordBuffer =*/
+                    PointTexCoords != null ?
+                        GLUseful.MakeFixedVec3Buffer(PointTexCoords)
+                    :
+                        null,
+                /*ColorBuffer =*/
+                    PointColors != null ?
+                        GLUseful.MakeFixedColorBuffer(PointColors)
+                    :
+                        null,
+                /*IndexBuffer =*/ GLUseful.MakeVertIndexBuffer(Faces),
+                /*NrIndexes =*/ Faces.size(),
                 Uniforms,
                 VertexColorCalc,
                 BoundMin,
