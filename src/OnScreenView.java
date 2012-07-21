@@ -20,62 +20,46 @@ package nz.gen.geek_central.gles2_sample;
 
 import javax.microedition.khronos.opengles.GL10;
 
-public class OnScreenView
-    extends android.opengl.GLSurfaceView
-    implements Runnable
+public class OnScreenView extends android.opengl.GLSurfaceView
   {
-    public interface StatsCallback
-      {
-        public void ShowStats
-          (
-            String Stats
-          );
-      } /*StatsCallback*/
+    public android.widget.TextView StatsView;
+    long ThisRun, LastRun, LastTimeTaken;
 
-    StatsCallback ShowStats;
-
-    private class OnScreenViewRenderer
-        implements
-            Renderer,
-            Runnable
+    private class OnScreenViewRenderer implements Renderer
       {
       /* Note I ignore the passed GL10 argument, and exclusively use
         static methods from GLES20 class for all OpenGL drawing */
         final SpinningArrow ArrowShape = new SpinningArrow();
-        final Repeater Repeating;
-
-        public OnScreenViewRenderer()
-          {
-            super();
-            Repeating = new Repeater(OnScreenView.this, this);
-          } /*OnScreenViewRenderer*/
-
-        public void Start()
-          {
-            Repeating.Start();
-          } /*Start*/
-
-        public void Stop()
-          {
-            Repeating.Stop();
-          } /*Stop*/
 
         public void onDrawFrame
           (
             GL10 _gl
           )
           {
-            Repeating.DoTask();
-            if (ShowStats != null)
+            ThisRun = android.os.SystemClock.uptimeMillis();
+            ArrowShape.Draw();
+            LastTimeTaken = android.os.SystemClock.uptimeMillis() - ThisRun;
+            LastRun = ThisRun;
+            if (StatsView != null)
               {
-                ShowStats.ShowStats(Repeating.Stats());
+                final String Stats = String.format
+                  (
+                    "%dms@%.2ffps",
+                    LastTimeTaken,
+                    1000.0 / (ThisRun - LastRun)
+                  );
+                getHandler().post
+                  (
+                    new Runnable()
+                      {
+                        public void run()
+                          {
+                            StatsView.setText(Stats);
+                          } /*run*/
+                      } /*Runnable*/
+                  );
               } /*if*/
           } /*onDrawFrame*/
-
-        public void run()
-          {
-            ArrowShape.Draw();
-          } /*run*/
 
         public void onSurfaceChanged
           (
@@ -109,26 +93,7 @@ public class OnScreenView
         super(TheContext, TheAttributes);
         setEGLContextClientVersion(2);
         setRenderer(Render);
-        setRenderMode(RENDERMODE_WHEN_DIRTY);
+      /* setRenderMode(RENDERMODE_CONTINUOUSLY); */ /* default */
       } /*OnScreenView*/
-
-    public void run()
-      {
-        requestRender();
-      } /*run*/
-
-    @Override
-    public void onPause()
-      {
-        Render.Stop();
-        super.onPause();
-      } /*onPause*/
-
-    @Override
-    public void onResume()
-      {
-        super.onResume();
-        Render.Start();
-      } /*onResume*/
 
   } /*OnScreenView*/

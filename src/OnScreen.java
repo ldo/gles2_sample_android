@@ -20,7 +20,6 @@ package nz.gen.geek_central.gles2_sample;
 public class OnScreen extends android.app.Activity
   {
     OnScreenView TheOnScreenView;
-    android.widget.TextView StatsView;
 
     @Override
     public void onCreate
@@ -31,27 +30,7 @@ public class OnScreen extends android.app.Activity
         super.onCreate(SavedInstanceState);
         setContentView(R.layout.onscreen);
         TheOnScreenView = (OnScreenView)findViewById(R.id.main);
-        StatsView = (android.widget.TextView)findViewById(R.id.stats);
-        TheOnScreenView.ShowStats =
-            new OnScreenView.StatsCallback()
-              {
-                public void ShowStats
-                  (
-                    final String Stats
-                  )
-                  {
-                    runOnUiThread
-                      (
-                        new Runnable()
-                          {
-                            public void run()
-                              {
-                                StatsView.setText(Stats);
-                              } /*run*/
-                          } /*Runnable*/
-                      );
-                  } /*ShowStats*/
-              } /*StatsCallback*/;
+        TheOnScreenView.StatsView = (android.widget.TextView)findViewById(R.id.stats);
       } /*onCreate*/
 
     @Override

@@ -16,7 +16,6 @@ The source code includes the following Java utility classes:
     management of shader programs
   * Lathe: uses GeomBuilder to construct objects with rotational symmetry
   * Mat4f: functional operations on matrices representing 3D homogeneous coordinates
-  * Repeater: for running the animation and measuring the frame rate
   * Vec3f: functional operations on vectors representing 3D coordinates
 and the following C utility code:
   * gl_useful.c -- contains an alternative to glGetShaderInfoLog which
