@@ -203,7 +203,7 @@ public class GLUseful
             final int Result = gl.glGetUniformLocation(id, Name);
             if (MustExist && Result < 0)
               {
-                ThrowError("getting uniform location");
+                throw new RuntimeException("no location for uniform “" + Name + "”");
               } /*if*/
             return Result;
           } /*GetUniform*/
@@ -217,7 +217,7 @@ public class GLUseful
             final int Result = gl.glGetAttribLocation(id, Name);
             if (MustExist && Result < 0)
               {
-                ThrowError("getting attribute location");
+                throw new RuntimeException("no location for attribute “" + Name + "”");
               } /*if*/
             return Result;
           } /*GetAttrib*/
