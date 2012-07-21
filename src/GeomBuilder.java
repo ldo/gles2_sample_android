@@ -333,16 +333,16 @@ public class GeomBuilder
               /* vertex shader: */
                 VS.toString(),
               /* fragment shader: */
-                    "precision mediump float;\n" +
-                    "varying vec4 front_color, back_color;\n" +
-                    "\n" +
-                    "void main()\n" +
-                    "  {\n" +
-                    "    if (gl_FrontFacing)\n" +
-                    "        gl_FragColor = front_color;\n" +
-                    "    else\n" +
-                    "        gl_FragColor = back_color;\n" +
-                    "  } /*main*/\n"
+                "precision mediump float;\n" +
+                "varying vec4 front_color, back_color;\n" +
+                "\n" +
+                "void main()\n" +
+                "  {\n" +
+                "    if (gl_FrontFacing)\n" +
+                "        gl_FragColor = front_color;\n" +
+                "    else\n" +
+                "        gl_FragColor = back_color;\n" +
+                "  } /*main*/\n"
               );
             ModelViewTransformVar = Render.GetUniform("model_view", true);
             ProjectionTransformVar = Render.GetUniform("projection", true);
