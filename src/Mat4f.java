@@ -3,10 +3,23 @@ package nz.gen.geek_central.GLUseful;
     Functional 3D matrix operations. Matrix elements are in row-major order.
     Vectors are treated as column vectors and premultiplied, i.e.
 
-    [x']   [m11 m12 m13 m14]   [x]
-    [y'] = [m21 m22 m23 m24] × [y]
-    [z']   [m31 m32 m33 m34]   [z]
-    [w']   [m41 m42 m43 m44]   [w]
+        [x']   [m11 m12 m13 m14]   [x]
+        [y'] = [m21 m22 m23 m24] × [y]
+        [z']   [m31 m32 m33 m34]   [z]
+        [w']   [m41 m42 m43 m44]   [w]
+
+    Q: Why not use the android.opengl.Matrix class?
+    A: Because that is procedural (updates state in an existing
+       object), this is functional (computes values from
+       expressions). The procedural approach requires you to perform a
+       sequence of calls on intermediate variables to set up a complex
+       transformation, whereas the functional approach allows you to
+       write it as a single expression, closer to the way it is
+       formulated mathematically. For an example in this source file,
+       see below how general rotation about an arbitrary axis is
+       composed out of a sequence of simpler rotation components.
+    Q: But doesn't that involve a whole lot of extra heap allocations?
+    A: Isn't that the point of using Java?
 
     Copyright 2011, 2012 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
