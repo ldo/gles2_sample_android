@@ -181,15 +181,19 @@ public class SpinningArrow
       /* gl.glEnable(gl.GL_MULTISAMPLE); */ /* doesn't seem to make any difference */
         gl.glEnable(gl.GL_DEPTH_TEST);
         gl.glViewport(0, 0, ViewWidth, ViewHeight);
-        ProjectionMatrix = Mat4f.frustum
-          (
-            /*L =*/ - (float)ViewWidth / ViewHeight,
-            /*R =*/ (float)ViewWidth / ViewHeight,
-            /*B =*/ -1.0f,
-            /*T =*/ 1.0f,
-            /*N =*/ 1.0f,
-            /*F =*/ 10.0f
-          );
+        ProjectionMatrix =
+                Mat4f.frustum
+                  (
+                    /*L =*/ - (float)ViewWidth / ViewHeight,
+                    /*R =*/ (float)ViewWidth / ViewHeight,
+                    /*B =*/ -1.0f,
+                    /*T =*/ 1.0f,
+                    /*N =*/ 1.0f,
+                    /*F =*/ 10.0f
+                  )
+            .mul(
+                Mat4f.translation(new Vec3f(0, 0, -3.0f))
+            );
       } /*Setup*/
 
     public void Draw
@@ -208,10 +212,8 @@ public class SpinningArrow
           (
             /*ProjectionMatrix =*/ ProjectionMatrix,
             /*ModelViewMatrix =*/
-                    Mat4f.translation(new Vec3f(0, 0, -3.0f))
-                .mul(
                     Mat4f.rotation(Mat4f.AXIS_Y, Roll)
-                ).mul(
+                .mul(
                     Mat4f.rotation(Mat4f.AXIS_X, Elev)
                 ).mul(
                     Mat4f.rotation(Mat4f.AXIS_Z, Azi)
