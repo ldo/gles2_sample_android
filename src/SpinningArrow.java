@@ -206,17 +206,17 @@ public class SpinningArrow
         gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
         final float Azi = (float)(Math.PI * AtTime);
-        final float Elev = (float)(Math.PI / 2.0 * Math.sin(0.5 * Math.PI * AtTime));
-        final float Roll = (float)(Math.PI / 10.0 * Math.sin(0.5 * Math.PI * AtTime));
+        final float Elev = (float)(Math.PI * Math.sin(0.25 * Math.PI * AtTime));
+        final float Roll = (float)(Math.PI / 10.0 * Math.sin(0.25 * Math.PI * AtTime));
         ArrowShape.Draw
           (
             /*ProjectionMatrix =*/ ProjectionMatrix,
             /*ModelViewMatrix =*/
-                    Mat4f.rotation(Mat4f.AXIS_Y, Roll)
+                    Mat4f.rotation(Mat4f.AXIS_Z, Azi)
                 .mul(
                     Mat4f.rotation(Mat4f.AXIS_X, Elev)
                 ).mul(
-                    Mat4f.rotation(Mat4f.AXIS_Z, Azi)
+                    Mat4f.rotation(Mat4f.AXIS_Y, Roll)
                 ).mul(
                     Mat4f.scaling(new Vec3f(2.0f, 2.0f, 2.0f))
                 ),
