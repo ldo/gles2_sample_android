@@ -58,6 +58,7 @@ public class Lathe
 
     public static GeomBuilder.Obj Make
       (
+        boolean Shaded, /* false for wireframe */
         VertexFunc Point,
           /* returns outline of object, must be at least 3 points, all Z coords must be
             zero, all X coords non-negative, and X coord of first and last point
@@ -81,6 +82,7 @@ public class Lathe
       {
         final GeomBuilder Geom = new GeomBuilder
           (
+            /*Shaded =*/ Shaded,
             /*GotNormals =*/ Normal != null,
             /*GotTexCoords =*/ TexCoord != null,
             /*GotColors =*/ VertexColor != null

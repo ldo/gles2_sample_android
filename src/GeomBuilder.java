@@ -39,6 +39,7 @@ public class GeomBuilder
   {
     static final android.opengl.GLES20 gl = new android.opengl.GLES20(); /* for easier references */
 
+    private final boolean Shaded;
     private final ArrayList<Vec3f> Points;
     private final ArrayList<Vec3f> PointNormals;
     private final ArrayList<Vec3f> PointTexCoords;
@@ -48,11 +49,13 @@ public class GeomBuilder
 
     public GeomBuilder
       (
+        boolean Shaded, /* false for wireframe */
         boolean GotNormals, /* vertices will have normals specified */
         boolean GotTexCoords, /* vertices will have texture coordinates specified */
         boolean GotColors /* vertices will have colours specified */
       )
       {
+        this.Shaded = Shaded;
         Points = new ArrayList<Vec3f>();
         PointNormals = GotNormals ? new ArrayList<Vec3f>() : null;
         PointTexCoords = GotTexCoords ? new ArrayList<Vec3f>() : null;
@@ -138,9 +141,21 @@ public class GeomBuilder
       )
       /* defines a triangular face. Args are indices as previously returned from calls to Add. */
       {
-        Faces.add(V1);
-        Faces.add(V2);
-        Faces.add(V3);
+        if (Shaded)
+          {
+            Faces.add(V1);
+            Faces.add(V2);
+            Faces.add(V3);
+          }
+        else
+          {
+            Faces.add(V1);
+            Faces.add(V2);
+            Faces.add(V2);
+            Faces.add(V3);
+            Faces.add(V3);
+            Faces.add(V1);
+          } /*if*/
       } /*AddTri*/
 
     public void AddQuad
@@ -152,8 +167,22 @@ public class GeomBuilder
       )
       /* Defines a quadrilateral face. Args are indices as previously returned from calls to Add. */
       {
-        AddTri(V1, V2, V3);
-        AddTri(V4, V1, V3);
+        if (Shaded)
+          {
+            AddTri(V1, V2, V3);
+            AddTri(V4, V1, V3);
+          }
+        else
+          {
+            Faces.add(V1);
+            Faces.add(V2);
+            Faces.add(V2);
+            Faces.add(V3);
+            Faces.add(V3);
+            Faces.add(V4);
+            Faces.add(V4);
+            Faces.add(V1);
+          } /*if*/
       } /*AddQuad*/
 
     public void AddPoly
@@ -163,10 +192,21 @@ public class GeomBuilder
       /* Defines a polygonal face. Array elements are indices as previously
         returned from calls to Add. */
       {
-        for (int i = 1; i < V.length - 1; ++i)
+        if (Shaded)
           {
-            AddTri(V[0], V[i], V[i + 1]);
-          } /*for*/
+            for (int i = 1; i < V.length - 1; ++i)
+              {
+                AddTri(V[0], V[i], V[i + 1]);
+              } /*for*/
+          }
+        else
+          {
+            for (int i = 0; i < V.length; ++i)
+              {
+                Faces.add(V[i]);
+                Faces.add(V[(i + 1) % V.length]);
+              } /*for*/
+          } /*if*/
       } /*AddPoly*/
 
     public enum ShaderVarTypes
@@ -215,6 +255,7 @@ public class GeomBuilder
     public static class Obj
       /* representation of complete object geometry. */
       {
+        private final boolean Shaded;
         private final IntBuffer VertexBuffer;
         private final IntBuffer NormalBuffer;
         private final IntBuffer TexCoordBuffer;
@@ -248,6 +289,7 @@ public class GeomBuilder
 
         private Obj
           (
+            boolean Shaded, /* false for wireframe */
             IntBuffer VertexBuffer,
             IntBuffer NormalBuffer, /* optional */
             IntBuffer TexCoordBuffer, /* optional, NYI */
@@ -263,6 +305,7 @@ public class GeomBuilder
             Vec3f BoundMax
           )
           {
+            this.Shaded = Shaded;
             this.VertexBuffer = VertexBuffer;
             this.NormalBuffer = NormalBuffer;
             this.TexCoordBuffer = TexCoordBuffer;
@@ -305,7 +348,14 @@ public class GeomBuilder
                     VS.append(";\n");
                   } /*for*/
               } /*if*/
-            VS.append("varying vec4 front_color, back_color;\n");
+            if (Shaded)
+              {
+                VS.append("varying vec4 front_color, back_color;\n");
+              }
+            else
+              {
+                VS.append("varying vec4 frag_color;\n");
+              } /*if*/
             VS.append("\n");
             VS.append("void main()\n");
             VS.append("  {\n");
@@ -316,15 +366,26 @@ public class GeomBuilder
               }
             else
               {
-                if (ColorBuffer != null)
+                VS.append
+                  (
+                    String.format
+                      (
+                        GLUseful.StdLocale,
+                        "    %s = %s;\n",
+                        Shaded ?
+                            "front_color"
+                        :
+                            "frag_color",
+                        ColorBuffer != null ?
+                            "vertex_color"
+                        :
+                            "vec4(0.5, 0.5, 0.5, 1.0)"
+                      )
+                  );
+                if (Shaded)
                   {
-                    VS.append("    front_color = vertex_color;\n");
-                  }
-                else
-                  {
-                    VS.append("    front_color = vec4(0.5, 0.5, 0.5, 1.0);\n");
+                    VS.append("    back_color = vec4(0.5, 0.5, 0.5, 1.0);\n");
                   } /*if*/
-                VS.append("    back_color = vec4(0.5, 0.5, 0.5, 1.0);\n");
               } /*if*/
             VS.append("  } /*main*/\n");
           /* use of vertex_texcoord NYI */
@@ -333,16 +394,28 @@ public class GeomBuilder
               /* vertex shader: */
                 VS.toString(),
               /* fragment shader: */
-                "precision mediump float;\n" +
-                "varying vec4 front_color, back_color;\n" +
-                "\n" +
-                "void main()\n" +
-                "  {\n" +
-                "    if (gl_FrontFacing)\n" +
-                "        gl_FragColor = front_color;\n" +
-                "    else\n" +
-                "        gl_FragColor = back_color;\n" +
-                "  } /*main*/\n"
+                    "precision mediump float;\n"
+                +
+                    (Shaded ?
+                        "varying vec4 front_color, back_color;\n"
+                    :
+                        "varying vec4 frag_color;\n"
+                    )
+                +
+                    "\n" +
+                    "void main()\n" +
+                    "  {\n"
+                +
+                    (Shaded ?
+                        "    if (gl_FrontFacing)\n" +
+                        "        gl_FragColor = front_color;\n" +
+                        "    else\n" +
+                        "        gl_FragColor = back_color;\n"
+                    :
+                        "    gl_FragColor = frag_color;\n"
+                    )
+                +
+                    "  } /*main*/\n"
               );
             ModelViewTransformVar = Render.GetUniform("model_view", true);
             ProjectionTransformVar = Render.GetUniform("projection", true);
@@ -417,7 +490,13 @@ public class GeomBuilder
                       } /*switch*/
                   } /*for*/
               } /*if*/
-            gl.glDrawElements(gl.GL_TRIANGLES, NrIndexes, gl.GL_UNSIGNED_SHORT, IndexBuffer);
+            gl.glDrawElements
+              (
+                /*mode =*/ Shaded ? gl.GL_TRIANGLES : gl.GL_LINES,
+                /*count =*/ NrIndexes,
+                /*type =*/ gl.GL_UNSIGNED_SHORT,
+                /*indices =*/ IndexBuffer
+              );
             Render.Unuse();
           } /*Draw*/
 
@@ -445,6 +524,7 @@ public class GeomBuilder
         return
             new Obj
               (
+                /*Shaded =*/ Shaded,
                 /*VertexBuffer =*/ GLUseful.MakeFixedVec3Buffer(Points),
                 /*NormalBuffer =*/
                     PointNormals != null ?

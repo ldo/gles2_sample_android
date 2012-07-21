@@ -26,6 +26,7 @@ import java.nio.ByteOrder;
 public class GLUseful
   {
     public static final android.opengl.GLES20 gl = new android.opengl.GLES20(); /* for easier references */
+    public static final java.util.Locale StdLocale = java.util.Locale.US; /* for when I don't actually want a locale */
 
     static
       {
@@ -46,6 +47,7 @@ public class GLUseful
           (
             String.format
               (
+                StdLocale,
                 "OpenGL error %d %s",
                 Err,
                 DoingWhat
