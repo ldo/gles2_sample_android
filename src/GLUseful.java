@@ -75,6 +75,31 @@ public class GLUseful
         at least on Android 2.2. */
 
 /*
+    Utility types
+*/
+
+    public static class Color
+      /* RGB colours with transparency */
+      {
+        public final float r, g, b, a;
+
+        public Color
+          (
+            float r,
+            float g,
+            float b,
+            float a
+          )
+          {
+            this.r = r;
+            this.b = b;
+            this.g = g;
+            this.a = a;
+          } /*Color*/
+
+      } /*Color*/;
+
+/*
     Shader programs
 */
 

@@ -45,7 +45,7 @@ public class Lathe
 
     public interface ColorFunc
       {
-        public GeomBuilder.Color Get
+        public GLUseful.Color Get
           (
             int PointIndex,
             int SectorIndex, /* 0 .. NrSectors - 1 */
@@ -116,7 +116,7 @@ public class Lathe
                                 TexCoord.Get(j, i, true)
                             :
                                 null;
-                        final GeomBuilder.Color ThisColor =
+                        final GLUseful.Color ThisColor =
                             VertexColor != null ?
                                 VertexColor.Get(j, i, true)
                             :
@@ -136,7 +136,7 @@ public class Lathe
                                 TexCoord.Get(j, i, false)
                             :
                                 null;
-                        final GeomBuilder.Color ThisColor =
+                        final GLUseful.Color ThisColor =
                             VertexColor != null ?
                                 VertexColor.Get(j, i, false)
                             :

@@ -32,8 +32,8 @@ public class GeomBuilder
     objects. Instantiate this and tell it whether each vertex will
     also have a normal vector, a texture-coordinate vector or a
     colour. Then call Add to add vertex definitions (using class Vec3f
-    to define points, and GeomBuilder.Color to define colours), and
-    use the returned vertex indices to construct faces with AddTri and
+    to define points, and Color to define colours), and use the
+    returned vertex indices to construct faces with AddTri and
     AddQuad. Finally, call MakeObj to obtain a GeomBuilder.Obj that
     has a Draw method that will render the resulting geometry into a
     specified GL context.
@@ -41,31 +41,10 @@ public class GeomBuilder
   {
     static final android.opengl.GLES20 gl = new android.opengl.GLES20(); /* for easier references */
 
-    public static class Color
-      /* RGB colours with transparency */
-      {
-        public final float r, g, b, a;
-
-        public Color
-          (
-            float r,
-            float g,
-            float b,
-            float a
-          )
-          {
-            this.r = r;
-            this.b = b;
-            this.g = g;
-            this.a = a;
-          } /*Color*/
-
-      } /*Color*/
-
     private final ArrayList<Vec3f> Points;
     private final ArrayList<Vec3f> PointNormals;
     private final ArrayList<Vec3f> PointTexCoords;
-    private final ArrayList<Color> PointColors;
+    private final ArrayList<GLUseful.Color> PointColors;
     private final ArrayList<Integer> Faces;
     private Vec3f BoundMin, BoundMax;
 
@@ -79,7 +58,7 @@ public class GeomBuilder
         Points = new ArrayList<Vec3f>();
         PointNormals = GotNormals ? new ArrayList<Vec3f>() : null;
         PointTexCoords = GotTexCoords ? new ArrayList<Vec3f>() : null;
-        PointColors = GotColors ? new ArrayList<Color>() : null;
+        PointColors = GotColors ? new ArrayList<GLUseful.Color>() : null;
         Faces = new ArrayList<Integer>();
         BoundMin = null;
         BoundMax = null;
@@ -92,7 +71,7 @@ public class GeomBuilder
         on respective flags passed to constructor */
         Vec3f Normal,
         Vec3f TexCoord,
-        Color VertexColor
+        GLUseful.Color VertexColor
       )
       /* adds a new vertex, and returns its index for use in constructing faces. */
       {
@@ -493,7 +472,7 @@ public class GeomBuilder
               } /*if*/
             if (PointColors != null)
               {
-                final Color ThisColor = PointColors.get(i);
+                final GLUseful.Color ThisColor = PointColors.get(i);
                 Colors[jc++] = (int)(ThisColor.r * Fixed1);
                 Colors[jc++] = (int)(ThisColor.g * Fixed1);
                 Colors[jc++] = (int)(ThisColor.b * Fixed1);
