@@ -29,7 +29,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
       {
       /* Note I ignore the passed GL10 argument, and exclusively use
         static methods from GLES20 class for all OpenGL drawing */
-        final SpinningArrow ArrowShape = new SpinningArrow();
+        SpinningArrow ArrowShape;
 
         public void onDrawFrame
           (
@@ -77,7 +77,8 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             javax.microedition.khronos.egl.EGLConfig Config
           )
           {
-          /* do everything in onSurfaceChanged */
+            ArrowShape = new SpinningArrow();
+          /* leave actual setup to onSurfaceChanged */
           } /*onSurfaceCreated*/
 
       } /*OnScreenViewRenderer*/
@@ -95,5 +96,12 @@ public class OnScreenView extends android.opengl.GLSurfaceView
         setRenderer(Render);
       /* setRenderMode(RENDERMODE_CONTINUOUSLY); */ /* default */
       } /*OnScreenView*/
+
+    @Override
+    public void onPause()
+      {
+        super.onPause();
+        Render.ArrowShape = null;
+      } /*onPause*/
 
   } /*OnScreenView*/
