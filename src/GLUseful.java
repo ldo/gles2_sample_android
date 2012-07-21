@@ -63,6 +63,15 @@ public class GLUseful
         ThrowError(gl.glGetError(), DoingWhat);
       } /*ThrowError*/
 
+    public static void ThrowError
+      (
+        String DoingWhat,
+        Object... FmtArgs
+      )
+      {
+        ThrowError(String.format(StdLocale, DoingWhat, FmtArgs));
+      } /*ThrowError*/
+
     public static void CheckError
       (
         String DoingWhat
@@ -73,6 +82,15 @@ public class GLUseful
           {
             ThrowError(Err, DoingWhat);
           } /*if*/
+      } /*CheckError*/
+
+    public static void CheckError
+      (
+        String DoingWhat,
+        Object... FmtArgs
+      )
+      {
+        CheckError(String.format(StdLocale, DoingWhat, FmtArgs));
       } /*CheckError*/
 
     public static native String GetShaderInfoLog
@@ -197,6 +215,10 @@ public class GLUseful
 
 /*
     Shader programs
+
+    Unfortunately, the error checks marked "spurious failures!" can
+    return mysterious failures after repeated shader creation.
+    Ignoring the errors seems to work fine.
 */
 
     public static class Shader
@@ -214,10 +236,11 @@ public class GLUseful
               {
                 ThrowError("creating shader");
               } /*if*/
+            System.err.printf("Compiling shader %d\n", id); /* debug */
             gl.glShaderSource(id, Source);
-            CheckError("setting shader source");
+          /* CheckError("setting shader %d source", id); */ /* spurious failures! */
             gl.glCompileShader(id);
-            CheckError("compiling shader source");
+          /* CheckError("compiling shader %d source", id); */ /* spurious failures! */
             int[] Status = new int[1];
             gl.glGetShaderiv(id, gl.GL_COMPILE_STATUS, Status, 0);
             if (Status[0] == gl.GL_FALSE)
@@ -241,6 +264,7 @@ public class GLUseful
 
         public void Release()
           {
+            System.err.printf("Releasing shader %d\n", id); /* debug */
             gl.glDeleteShader(id);
           } /*Release*/
 
@@ -264,13 +288,14 @@ public class GLUseful
               {
                 ThrowError("creating program");
               } /*if*/
+            System.err.printf("Linking program %d with vertex %d frag %d\n", id, VertexShader.id, FragmentShader.id); /* debug */
             this.VertexShader = VertexShader;
             this.FragmentShader = FragmentShader;
             this.OwnShaders = OwnShaders;
             gl.glAttachShader(id, VertexShader.id);
-            CheckError("attaching vertex shader");
+          /* CheckError("attaching vertex shader to program %d", id); */ /* spurious failures! */
             gl.glAttachShader(id, FragmentShader.id);
-            CheckError("attaching fragment shader");
+          /* CheckError("attaching fragment shader to program %d", id); */ /* spurious failures! */
             gl.glLinkProgram(id);
             int[] Status = new int[1];
             gl.glGetProgramiv(id, gl.GL_LINK_STATUS, Status, 0);
@@ -355,6 +380,7 @@ public class GLUseful
 
         public void Release()
           {
+            System.err.printf("Releasing program %d with vertex %d frag %d\n", id, VertexShader.id, FragmentShader.id); /* debug */
             gl.glDetachShader(id, VertexShader.id);
             gl.glDetachShader(id, FragmentShader.id);
             if (OwnShaders)

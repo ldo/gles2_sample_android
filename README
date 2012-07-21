@@ -9,9 +9,9 @@ such shaders; hopefully this sample will be a slightly more
 interesting one to learn from and build on.
 
 The source code includes the following Java utility classes:
-  * GeomBuilder: basic management of 3D object geometry and rendering,
-    allowing customization of the vertex shader program to implement
-    materials, lighting etc
+  * GeomBuilder: basic management of 3D object geometry with choice of
+    wireframe or shaded rendering, allowing customization of the
+    vertex shader program to implement materials, lighting etc
   * GLUseful: useful OpenGL-related stuff, including error-checking and
     management of shader programs
   * Lathe: uses GeomBuilder to construct objects with rotational symmetry
@@ -20,6 +20,9 @@ The source code includes the following Java utility classes:
 and the following C utility code:
   * gl_useful.c -- contains an alternative to glGetShaderInfoLog which
     actually works.
+
+When the animation is running, tap the view to bring up a dialog that
+allows a choice between shaded and wireframe rendering modes.
 
 Contents:
     README -- this file

@@ -34,13 +34,17 @@ public class SpinningArrow
     private static final float BaseBevel = 0.2f * BodyThickness;
     private static final int NrSectors = 12;
 
+    private final boolean Shaded;
     private GeomBuilder.Obj ArrowShape;
     private boolean SetupDone;
     private final double StartTime;
     private double LastDraw;
     Mat4f ProjectionMatrix;
 
-    private static GeomBuilder.Obj MakeArrow()
+    private static GeomBuilder.Obj MakeArrow
+      (
+        boolean Shaded
+      )
       {
         final float OuterTiltCos =
             HeadThickness / (float)Math.hypot(HeadThickness, HeadLengthOuter);
@@ -76,7 +80,6 @@ public class SpinningArrow
                   ), /* bevel */
                 new Vec3f(0.0f, -1.0f, 0.0f), /* base */
               };
-        final boolean Shaded = true; /* TBD make this a user option */
         return
             Lathe.Make
               (
@@ -165,8 +168,12 @@ public class SpinningArrow
               );
       } /*MakeArrow*/
 
-    public SpinningArrow()
+    public SpinningArrow
+      (
+        boolean Shaded
+      )
       {
+        this.Shaded = Shaded;
         StartTime = System.currentTimeMillis() / 1000.0;
       /* creation of GL objects cannot be done here, must wait until
         I have a GL context */
@@ -182,7 +189,7 @@ public class SpinningArrow
       {
         if (!SetupDone)
           {
-            ArrowShape = MakeArrow();
+            ArrowShape = MakeArrow(Shaded);
             SetupDone = true;
           } /*if*/
         gl.glEnable(gl.GL_CULL_FACE);
@@ -250,5 +257,14 @@ public class SpinningArrow
       {
         Draw(LastDraw);
       } /*DrawAgain*/
+
+    public void Release()
+      {
+        if (ArrowShape != null)
+          {
+            ArrowShape.Release();
+          } /*if*/
+        ArrowShape = null;
+      } /*Release*/
 
   } /*SpinningArrow*/

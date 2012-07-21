@@ -21,6 +21,67 @@ public class OnScreen extends android.app.Activity
   {
     OnScreenView TheOnScreenView;
 
+    class RenderingDialog
+        extends android.app.Dialog
+        implements android.content.DialogInterface.OnDismissListener
+      {
+        final android.content.Context ctx;
+        android.widget.RadioGroup TheButtons;
+
+        public RenderingDialog
+          (
+            android.content.Context ctx
+          )
+          {
+            super(ctx);
+            this.ctx = ctx;
+          } /*RenderingDialog*/
+
+        @Override
+        public void onCreate
+          (
+            android.os.Bundle savedInstanceState
+          )
+          {
+            setTitle(R.string.rendering);
+            final android.widget.LinearLayout MainLayout = new android.widget.LinearLayout(ctx);
+            MainLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
+            setContentView(MainLayout);
+            TheButtons = new android.widget.RadioGroup(ctx);
+            final android.view.ViewGroup.LayoutParams ButtonLayout =
+                new android.view.ViewGroup.LayoutParams
+                  (
+                    android.view.ViewGroup.LayoutParams.FILL_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                  );
+              {
+                final android.widget.RadioButton RenderingShaded =
+                    new android.widget.RadioButton(ctx);
+                RenderingShaded.setText(R.string.shaded);
+                RenderingShaded.setId(1);
+                final android.widget.RadioButton RenderingWireframe =
+                    new android.widget.RadioButton(ctx);
+                RenderingWireframe.setText(R.string.wireframe);
+                RenderingWireframe.setId(0);
+                TheButtons.addView(RenderingShaded, 0, ButtonLayout);
+                TheButtons.addView(RenderingWireframe, 1, ButtonLayout);
+              }
+            MainLayout.addView(TheButtons, ButtonLayout);
+            TheButtons.check(TheOnScreenView.GetShaded() ? 1 : 0);
+            setOnDismissListener(this);
+          } /*onCreate*/
+
+        @Override
+        public void onDismiss
+          (
+            android.content.DialogInterface TheDialog
+          )
+          {
+            TheOnScreenView.SetShaded(TheButtons.getCheckedRadioButtonId() != 0);
+          } /*onDismiss*/
+
+      } /*RenderingDialog*/
+
     @Override
     public void onCreate
       (
@@ -31,6 +92,19 @@ public class OnScreen extends android.app.Activity
         setContentView(R.layout.onscreen);
         TheOnScreenView = (OnScreenView)findViewById(R.id.main);
         TheOnScreenView.StatsView = (android.widget.TextView)findViewById(R.id.stats);
+        TheOnScreenView.setOnClickListener
+          (
+            new android.view.View.OnClickListener()
+              {
+                public void onClick
+                  (
+                    android.view.View TheView
+                  )
+                  {
+                    new RenderingDialog(OnScreen.this).show();
+                  } /*onClick*/
+              } /*OnClickListener*/
+          );
       } /*onCreate*/
 
     @Override

@@ -23,6 +23,8 @@ import javax.microedition.khronos.opengles.GL10;
 public class OnScreenView extends android.opengl.GLSurfaceView
   {
     public android.widget.TextView StatsView;
+    boolean Shaded, NewShaded; /* fixme: need to preserve last-set value across orientation changes */
+    int LastViewWidth = 0, LastViewHeight = 0;
     long ThisRun, LastRun, LastTimeTaken;
 
     private class OnScreenViewRenderer implements Renderer
@@ -36,6 +38,20 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             GL10 _gl
           )
           {
+            if (NewShaded != Shaded)
+              {
+                if (ArrowShape != null)
+                  {
+                    ArrowShape.Release();
+                  } /*if*/
+                ArrowShape = null; /* allocate a new one */
+                Shaded = NewShaded;
+              } /*if*/
+            if (ArrowShape == null)
+              {
+                ArrowShape = new SpinningArrow(Shaded);
+                ArrowShape.Setup(LastViewWidth, LastViewHeight);
+              } /*if*/
             ThisRun = android.os.SystemClock.uptimeMillis();
             ArrowShape.Draw();
             LastTimeTaken = android.os.SystemClock.uptimeMillis() - ThisRun;
@@ -68,7 +84,12 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             int ViewHeight
           )
           {
-            ArrowShape.Setup(ViewWidth, ViewHeight);
+            LastViewWidth = ViewWidth;
+            LastViewHeight = ViewHeight;
+            if (ArrowShape != null)
+              {
+                ArrowShape.Setup(ViewWidth, ViewHeight);
+              } /*if*/
           } /*onSurfaceChanged*/
 
         public void onSurfaceCreated
@@ -77,7 +98,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             javax.microedition.khronos.egl.EGLConfig Config
           )
           {
-            ArrowShape = new SpinningArrow();
+            ArrowShape = new SpinningArrow(Shaded);
           /* leave actual setup to onSurfaceChanged */
           } /*onSurfaceCreated*/
 
@@ -92,16 +113,47 @@ public class OnScreenView extends android.opengl.GLSurfaceView
       )
       {
         super(TheContext, TheAttributes);
+        Shaded = true; /* default */
+        NewShaded = Shaded;
         setEGLContextClientVersion(2);
         setRenderer(Render);
       /* setRenderMode(RENDERMODE_CONTINUOUSLY); */ /* default */
       } /*OnScreenView*/
 
+    public boolean GetShaded()
+      {
+        return
+            Shaded;
+      } /*GetShaded*/
+
+    public void SetShaded
+      (
+        final boolean NewShaded
+      )
+      {
+        if (this.NewShaded != NewShaded)
+          {
+            queueEvent
+              (
+                new Runnable()
+                  {
+                    public void run()
+                      {
+                      /* note I don't dispose of ArrowShape here, even though I'm
+                        on the GL thread, just in case the GL context is not actually
+                        set properly */
+                        OnScreenView.this.NewShaded = NewShaded;
+                      } /*run*/
+                  } /*Runnable*/
+              );
+          } /*if*/
+      } /*Reset*/
+
     @Override
     public void onPause()
       {
         super.onPause();
-        Render.ArrowShape = null;
+        Render.ArrowShape = null; /* losing the GL context anyway */
       } /*onPause*/
 
   } /*OnScreenView*/
