@@ -20,9 +20,6 @@ package nz.gen.geek_central.GLUseful;
 */
 
 import java.util.ArrayList;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
 import nz.gen.geek_central.GLUseful.GLUseful;
 
 public class GeomBuilder
@@ -257,12 +254,11 @@ public class GeomBuilder
       /* representation of complete object geometry. */
       {
         private final boolean Shaded;
-        private final IntBuffer VertexBuffer;
-        private final IntBuffer NormalBuffer;
-        private final IntBuffer TexCoordBuffer;
-        private final ByteBuffer ColorBuffer;
-        private final ShortBuffer IndexBuffer;
-        private final int NrIndexes;
+        private final GLUseful.FixedVec3Buffer VertexBuffer;
+        private final GLUseful.FixedVec3Buffer NormalBuffer;
+        private final GLUseful.FixedVec3Buffer TexCoordBuffer;
+        private final GLUseful.ByteColorBuffer ColorBuffer;
+        private final GLUseful.VertIndexBuffer IndexBuffer;
         private final GLUseful.Program Render;
         public final Vec3f BoundMin, BoundMax;
 
@@ -291,12 +287,11 @@ public class GeomBuilder
         private Obj
           (
             boolean Shaded, /* false for wireframe */
-            IntBuffer VertexBuffer,
-            IntBuffer NormalBuffer, /* optional */
-            IntBuffer TexCoordBuffer, /* optional, NYI */
-            ByteBuffer ColorBuffer, /* optional */
-            ShortBuffer IndexBuffer,
-            int NrIndexes,
+            GLUseful.FixedVec3Buffer VertexBuffer,
+            GLUseful.FixedVec3Buffer NormalBuffer, /* optional */
+            GLUseful.FixedVec3Buffer TexCoordBuffer, /* optional, NYI */
+            GLUseful.ByteColorBuffer ColorBuffer, /* optional */
+            GLUseful.VertIndexBuffer IndexBuffer,
             ShaderVarDef[] Uniforms,
               /* optional additional uniform variable definitions for vertex shader */
             String VertexColorCalc,
@@ -312,7 +307,6 @@ public class GeomBuilder
             this.TexCoordBuffer = TexCoordBuffer;
             this.ColorBuffer = ColorBuffer;
             this.IndexBuffer = IndexBuffer;
-            this.NrIndexes = NrIndexes;
             this.BoundMin = BoundMin;
             this.BoundMax = BoundMax;
             final StringBuilder VS = new StringBuilder();
@@ -456,17 +450,14 @@ public class GeomBuilder
               {
                 throw new RuntimeException("uniform defs/vals mismatch");
               } /*if*/
-            gl.glEnableVertexAttribArray(VertexPositionVar);
-            gl.glVertexAttribPointer(VertexPositionVar, 3, gl.GL_FIXED, true, 0, VertexBuffer);
+            VertexBuffer.Apply(VertexPositionVar, true);
             if (NormalBuffer != null)
               {
-                gl.glEnableVertexAttribArray(VertexNormalVar);
-                gl.glVertexAttribPointer(VertexNormalVar, 3, gl.GL_FIXED, true, 0, NormalBuffer);
+                NormalBuffer.Apply(VertexNormalVar, true);
               } /*if*/
             if (ColorBuffer != null)
               {
-                gl.glEnableVertexAttribArray(VertexColorVar);
-                gl.glVertexAttribPointer(VertexColorVar, 4, gl.GL_UNSIGNED_BYTE, true, 0, ColorBuffer);
+                ColorBuffer.Apply(VertexColorVar, true);
               } /*if*/
             if (Uniforms != null)
               {
@@ -491,13 +482,7 @@ public class GeomBuilder
                       } /*switch*/
                   } /*for*/
               } /*if*/
-            gl.glDrawElements
-              (
-                /*mode =*/ Shaded ? gl.GL_TRIANGLES : gl.GL_LINES,
-                /*count =*/ NrIndexes,
-                /*type =*/ gl.GL_UNSIGNED_SHORT,
-                /*indices =*/ IndexBuffer
-              );
+            IndexBuffer.Draw(Shaded ? gl.GL_TRIANGLES : gl.GL_LINES);
             Render.Unuse();
           } /*Draw*/
 
@@ -526,24 +511,23 @@ public class GeomBuilder
             new Obj
               (
                 /*Shaded =*/ Shaded,
-                /*VertexBuffer =*/ GLUseful.MakeFixedVec3Buffer(Points),
+                /*VertexBuffer =*/ new GLUseful.FixedVec3Buffer(Points),
                 /*NormalBuffer =*/
                     PointNormals != null ?
-                        GLUseful.MakeFixedVec3Buffer(PointNormals)
+                        new GLUseful.FixedVec3Buffer(PointNormals)
                     :
                         null,
                 /*TexCoordBuffer =*/
                     PointTexCoords != null ?
-                        GLUseful.MakeFixedVec3Buffer(PointTexCoords)
+                        new GLUseful.FixedVec3Buffer(PointTexCoords)
                     :
                         null,
                 /*ColorBuffer =*/
                     PointColors != null ?
-                        GLUseful.MakeByteColorBuffer(PointColors)
+                        new GLUseful.ByteColorBuffer(PointColors)
                     :
                         null,
-                /*IndexBuffer =*/ GLUseful.MakeVertIndexBuffer(Faces),
-                /*NrIndexes =*/ Faces.size(),
+                /*IndexBuffer =*/ new GLUseful.VertIndexBuffer(Faces),
                 Uniforms,
                 VertexColorCalc,
                 BoundMin,

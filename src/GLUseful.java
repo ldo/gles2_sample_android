@@ -138,79 +138,127 @@ public class GLUseful
 
     public static final int Fixed1 = 0x10000; /* for converting between float & fixed values */
 
-    public static IntBuffer MakeFixedVec3Buffer
-      (
-        ArrayList<Vec3f> FromArray
-      )
-      /* converts the values in FromArray to fixed and returns them
-        in an IntBuffer suitable for passing to glVertexAttribPointer. */
+    public static class FixedVec3Buffer
+      /* converts an ArrayList of vectors to a vertex-attribute buffer. */
       {
-        final int[] Vals = new int[FromArray.size() * 3];
-        int jv = 0;
-        for (int i = 0; i < FromArray.size(); ++i)
-          {
-            final Vec3f Vec = FromArray.get(i);
-            Vals[jv++] = (int)(Vec.x * Fixed1);
-            Vals[jv++] = (int)(Vec.y * Fixed1);
-            Vals[jv++] = (int)(Vec.z * Fixed1);
-          } /*for*/
-        final IntBuffer Result =
-            ByteBuffer.allocateDirect(Vals.length * 4)
-            .order(ByteOrder.nativeOrder())
-            .asIntBuffer()
-            .put(Vals);
-        Result.position(0);
-        return
-            Result;
-      } /*MakeFixedVec3Buffer*/
+        private final IntBuffer Buf;
 
-    public static ByteBuffer MakeByteColorBuffer
-      (
-        ArrayList<Color> FromArray
-      )
-      /* converts the values in FromArray to fixed and returns them
-        in a ByteBuffer suitable for passing to glVertexAttribPointer. */
-      {
-        final byte[] Vals = new byte[FromArray.size() * 4];
-        int jv = 0;
-        for (int i = 0; i < FromArray.size(); ++i)
+        public FixedVec3Buffer
+          (
+            ArrayList<Vec3f> FromArray
+          )
           {
-            final Color Val = FromArray.get(i);
-            Vals[jv++] = (byte)(Val.r * 255);
-            Vals[jv++] = (byte)(Val.g * 255);
-            Vals[jv++] = (byte)(Val.b * 255);
-            Vals[jv++] = (byte)(Val.a * 255);
-          } /*for*/
-        final ByteBuffer Result =
-            ByteBuffer.allocateDirect(Vals.length)
-            .order(ByteOrder.nativeOrder())
-            .put(Vals);
-        Result.position(0);
-        return
-            Result;
-      } /*MakeByteColorBuffer*/
+            final int[] Vals = new int[FromArray.size() * 3];
+            int jv = 0;
+            for (int i = 0; i < FromArray.size(); ++i)
+              {
+                final Vec3f Vec = FromArray.get(i);
+                Vals[jv++] = (int)(Vec.x * Fixed1);
+                Vals[jv++] = (int)(Vec.y * Fixed1);
+                Vals[jv++] = (int)(Vec.z * Fixed1);
+              } /*for*/
+            Buf =
+                ByteBuffer.allocateDirect(Vals.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asIntBuffer()
+                .put(Vals);
+            Buf.position(0);
+          } /*FixedVec3Buffer*/
 
-    public static ShortBuffer MakeVertIndexBuffer
-      (
-        ArrayList<Integer> FromArray
-      )
-      /* converts the indices in FromArray into a ShortBuffer suitable for
-        passing to glDrawElements. */
-      {
-        final short[] Indices = new short[FromArray.size()];
-        for (int i = 0; i < Indices.length; ++i)
+        public void Apply
+          (
+            int AttribLoc,
+            boolean Enable
+          )
           {
-            Indices[i] = (short)(int)FromArray.get(i);
-          } /*for*/
-        final ShortBuffer IndexBuffer =
-            ByteBuffer.allocateDirect(Indices.length * 2)
-            .order(ByteOrder.nativeOrder())
-            .asShortBuffer()
-            .put(Indices);
-        IndexBuffer.position(0);
-        return
-            IndexBuffer;
-      } /*MakeVertIndexBuffer*/
+            if (Enable)
+              {
+                gl.glEnableVertexAttribArray(AttribLoc);
+              } /*if*/
+            gl.glVertexAttribPointer(AttribLoc, 3, gl.GL_FIXED, true, 0, Buf);
+          } /*Apply*/
+
+      } /*FixedVec3Buffer*/;
+
+    public static class ByteColorBuffer
+      /* converts an ArrayList of colours to a vertex-attribute buffer. */
+      {
+        private final ByteBuffer Buf;
+
+        public ByteColorBuffer
+          (
+            ArrayList<Color> FromArray
+          )
+          {
+            final byte[] Vals = new byte[FromArray.size() * 4];
+            int jv = 0;
+            for (int i = 0; i < FromArray.size(); ++i)
+              {
+                final Color Val = FromArray.get(i);
+                Vals[jv++] = (byte)(Val.r * 255);
+                Vals[jv++] = (byte)(Val.g * 255);
+                Vals[jv++] = (byte)(Val.b * 255);
+                Vals[jv++] = (byte)(Val.a * 255);
+              } /*for*/
+            Buf =
+                ByteBuffer.allocateDirect(Vals.length)
+                .order(ByteOrder.nativeOrder())
+                .put(Vals);
+            Buf.position(0);
+          } /*ByteColorBuffer*/
+
+        public void Apply
+          (
+            int AttribLoc,
+            boolean Enable
+          )
+          {
+            if (Enable)
+              {
+                gl.glEnableVertexAttribArray(AttribLoc);
+              } /*if*/
+            gl.glVertexAttribPointer(AttribLoc, 4, gl.GL_UNSIGNED_BYTE, true, 0, Buf);
+          } /*Apply*/
+      } /*ByteColorBuffer*/;
+
+    public static class VertIndexBuffer
+      /* converts an ArrayList of vertex indices to a buffer that can be passed to glDrawElements. */
+      {
+        private final ShortBuffer Buf;
+
+        public VertIndexBuffer
+          (
+            ArrayList<Integer> FromArray
+          )
+          {
+            final short[] Indices = new short[FromArray.size()];
+            for (int i = 0; i < Indices.length; ++i)
+              {
+                Indices[i] = (short)(int)FromArray.get(i);
+              } /*for*/
+            Buf =
+                ByteBuffer.allocateDirect(Indices.length * 2)
+                .order(ByteOrder.nativeOrder())
+                .asShortBuffer()
+                .put(Indices);
+            Buf.position(0);
+          } /*VertIndexBuffer*/
+
+        public void Draw
+          (
+            int Mode
+          )
+          {
+            gl.glDrawElements
+              (
+                /*mode =*/ Mode,
+                /*count =*/ Buf.limit(),
+                /*type =*/ gl.GL_UNSIGNED_SHORT,
+                /*indices =*/ Buf
+              );
+          } /*Draw*/
+
+      } /*VertIndexBuffer*/;
 
 /*
     Shader programs
