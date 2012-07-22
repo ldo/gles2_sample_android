@@ -225,12 +225,15 @@ public class GLUseful
       /* converts an ArrayList of vertex indices to a buffer that can be passed to glDrawElements. */
       {
         private final ShortBuffer Buf;
+        private final int Mode;
 
         public VertIndexBuffer
           (
-            ArrayList<Integer> FromArray
+            ArrayList<Integer> FromArray,
+            int Mode
           )
           {
+            this.Mode = Mode;
             final short[] Indices = new short[FromArray.size()];
             for (int i = 0; i < Indices.length; ++i)
               {
@@ -244,10 +247,7 @@ public class GLUseful
             Buf.position(0);
           } /*VertIndexBuffer*/
 
-        public void Draw
-          (
-            int Mode
-          )
+        public void Draw()
           {
             gl.glDrawElements
               (

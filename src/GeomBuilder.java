@@ -482,7 +482,7 @@ public class GeomBuilder
                       } /*switch*/
                   } /*for*/
               } /*if*/
-            IndexBuffer.Draw(Shaded ? gl.GL_TRIANGLES : gl.GL_LINES);
+            IndexBuffer.Draw();
             Render.Unuse();
           } /*Draw*/
 
@@ -527,7 +527,12 @@ public class GeomBuilder
                         new GLUseful.ByteColorBuffer(PointColors)
                     :
                         null,
-                /*IndexBuffer =*/ new GLUseful.VertIndexBuffer(Faces),
+                /*IndexBuffer =*/
+                    new GLUseful.VertIndexBuffer
+                      (
+                        /*FromArray =*/ Faces,
+                        /*Mode =*/ Shaded ? gl.GL_TRIANGLES : gl.GL_LINES
+                      ),
                 Uniforms,
                 VertexColorCalc,
                 BoundMin,
