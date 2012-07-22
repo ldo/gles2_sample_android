@@ -46,7 +46,7 @@ following command:
     ant signed
 
 If this completes without errors, you should have a file
-bin/on_vs_offscreen-release.apk, which is the application package.
+bin/gles2_sample-release.apk, which is the application package.
 
 You can also install this automatically to an Android device
 connected via USB. First, make sure "USB Debugging" is enabled
