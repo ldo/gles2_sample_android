@@ -171,7 +171,7 @@ public class GLUseful
       /* converts the values in FromArray to fixed and returns them
         in a ByteBuffer suitable for passing to glVertexAttribPointer. */
       {
-        final byte[] Vals = new byte[FromArray.size() * 4];
+        final byte[] Vals = new byte[FromArray.size()];
         int jv = 0;
         for (int i = 0; i < FromArray.size(); ++i)
           {
