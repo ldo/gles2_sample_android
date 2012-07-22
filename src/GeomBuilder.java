@@ -20,6 +20,7 @@ package nz.gen.geek_central.GLUseful;
 */
 
 import java.util.ArrayList;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import nz.gen.geek_central.GLUseful.GLUseful;
@@ -259,7 +260,7 @@ public class GeomBuilder
         private final IntBuffer VertexBuffer;
         private final IntBuffer NormalBuffer;
         private final IntBuffer TexCoordBuffer;
-        private final IntBuffer ColorBuffer;
+        private final ByteBuffer ColorBuffer;
         private final ShortBuffer IndexBuffer;
         private final int NrIndexes;
         private final GLUseful.Program Render;
@@ -293,7 +294,7 @@ public class GeomBuilder
             IntBuffer VertexBuffer,
             IntBuffer NormalBuffer, /* optional */
             IntBuffer TexCoordBuffer, /* optional, NYI */
-            IntBuffer ColorBuffer, /* optional */
+            ByteBuffer ColorBuffer, /* optional */
             ShortBuffer IndexBuffer,
             int NrIndexes,
             ShaderVarDef[] Uniforms,
@@ -465,7 +466,7 @@ public class GeomBuilder
             if (ColorBuffer != null)
               {
                 gl.glEnableVertexAttribArray(VertexColorVar);
-                gl.glVertexAttribPointer(VertexColorVar, 4, gl.GL_FIXED, true, 0, ColorBuffer);
+                gl.glVertexAttribPointer(VertexColorVar, 4, gl.GL_UNSIGNED_BYTE, true, 0, ColorBuffer);
               } /*if*/
             if (Uniforms != null)
               {
@@ -538,7 +539,7 @@ public class GeomBuilder
                         null,
                 /*ColorBuffer =*/
                     PointColors != null ?
-                        GLUseful.MakeFixedColorBuffer(PointColors)
+                        GLUseful.MakeByteColorBuffer(PointColors)
                     :
                         null,
                 /*IndexBuffer =*/ GLUseful.MakeVertIndexBuffer(Faces),

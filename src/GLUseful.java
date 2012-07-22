@@ -164,32 +164,31 @@ public class GLUseful
             Result;
       } /*MakeFixedVec3Buffer*/
 
-    public static IntBuffer MakeFixedColorBuffer
+    public static ByteBuffer MakeByteColorBuffer
       (
         ArrayList<Color> FromArray
       )
       /* converts the values in FromArray to fixed and returns them
-        in an IntBuffer suitable for passing to glVertexAttribPointer. */
+        in a ByteBuffer suitable for passing to glVertexAttribPointer. */
       {
-        final int[] Vals = new int[FromArray.size() * 4];
+        final byte[] Vals = new byte[FromArray.size() * 4];
         int jv = 0;
         for (int i = 0; i < FromArray.size(); ++i)
           {
             final Color Val = FromArray.get(i);
-            Vals[jv++] = (int)(Val.r * Fixed1);
-            Vals[jv++] = (int)(Val.g * Fixed1);
-            Vals[jv++] = (int)(Val.b * Fixed1);
-            Vals[jv++] = (int)(Val.a * Fixed1);
+            Vals[jv++] = (byte)(Val.r * 255);
+            Vals[jv++] = (byte)(Val.g * 255);
+            Vals[jv++] = (byte)(Val.b * 255);
+            Vals[jv++] = (byte)(Val.a * 255);
           } /*for*/
-        final IntBuffer Result =
-            ByteBuffer.allocateDirect(Vals.length * 4)
+        final ByteBuffer Result =
+            ByteBuffer.allocateDirect(Vals.length)
             .order(ByteOrder.nativeOrder())
-            .asIntBuffer()
             .put(Vals);
         Result.position(0);
         return
             Result;
-      } /*MakeFixedColorBuffer*/
+      } /*MakeByteColorBuffer*/
 
     public static ShortBuffer MakeVertIndexBuffer
       (
