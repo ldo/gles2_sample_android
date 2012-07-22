@@ -20,7 +20,6 @@ package nz.gen.geek_central.GLUseful;
 */
 
 import java.util.ArrayList;
-import nz.gen.geek_central.GLUseful.GLUseful;
 
 public class GeomBuilder
   /*

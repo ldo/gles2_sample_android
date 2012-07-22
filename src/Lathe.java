@@ -18,8 +18,6 @@ package nz.gen.geek_central.GLUseful;
     the License.
 */
 
-import nz.gen.geek_central.GLUseful.Vec3f;
-
 public class Lathe
   {
     public interface VertexFunc
