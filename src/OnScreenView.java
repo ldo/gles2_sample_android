@@ -55,7 +55,6 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             ThisRun = android.os.SystemClock.uptimeMillis();
             ArrowShape.Draw();
             LastTimeTaken = android.os.SystemClock.uptimeMillis() - ThisRun;
-            LastRun = ThisRun;
             if (StatsView != null)
               {
                 final String Stats = String.format
@@ -75,6 +74,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                       } /*Runnable*/
                   );
               } /*if*/
+            LastRun = ThisRun;
           } /*onDrawFrame*/
 
         public void onSurfaceChanged
