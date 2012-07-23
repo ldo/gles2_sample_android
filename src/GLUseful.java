@@ -283,7 +283,6 @@ public class GLUseful
               {
                 ThrowError("creating shader");
               } /*if*/
-            System.err.printf("Compiling shader %d\n", id); /* debug */
             gl.glShaderSource(id, Source);
           /* CheckError("setting shader %d source", id); */ /* spurious failures! */
             gl.glCompileShader(id);
@@ -311,7 +310,6 @@ public class GLUseful
 
         public void Release()
           {
-            System.err.printf("Releasing shader %d\n", id); /* debug */
             gl.glDeleteShader(id);
           } /*Release*/
 
@@ -335,7 +333,6 @@ public class GLUseful
               {
                 ThrowError("creating program");
               } /*if*/
-            System.err.printf("Linking program %d with vertex %d frag %d\n", id, VertexShader.id, FragmentShader.id); /* debug */
             this.VertexShader = VertexShader;
             this.FragmentShader = FragmentShader;
             this.OwnShaders = OwnShaders;
@@ -427,7 +424,6 @@ public class GLUseful
 
         public void Release()
           {
-            System.err.printf("Releasing program %d with vertex %d frag %d\n", id, VertexShader.id, FragmentShader.id); /* debug */
             gl.glDetachShader(id, VertexShader.id);
             gl.glDetachShader(id, FragmentShader.id);
             if (OwnShaders)
