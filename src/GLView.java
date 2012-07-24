@@ -177,7 +177,7 @@ public class GLView
                 /*bitmap =*/ Bits,
                 /*border =*/ 0
               );
-            GLUseful.CheckError("sending view texture image");
+          /* GLUseful.CheckError("sending view texture image"); */ /* spurious error! */
             SendBits = false;
           } /*if*/
         gl.glEnable(gl.GL_BLEND);
