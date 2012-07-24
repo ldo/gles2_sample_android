@@ -21,6 +21,8 @@ The source code includes the following Java utility classes:
     symmetry
   * Mat4f: functional operations on matrices representing 3D
     homogeneous coordinates
+  * PaintBuilder: convenient construction of Paint objects by chaining
+    setup calls
   * Vec3f: functional operations on vectors representing 3D coordinates
 and the following C utility code:
   * gl_useful.c -- contains an alternative to glGetShaderInfoLog which

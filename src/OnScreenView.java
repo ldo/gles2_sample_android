@@ -19,6 +19,7 @@ package nz.gen.geek_central.gles2_sample;
 */
 
 import javax.microedition.khronos.opengles.GL10;
+import nz.gen.geek_central.GraphicsUseful.PaintBuilder;
 import nz.gen.geek_central.GLUseful.Vec3f;
 import nz.gen.geek_central.GLUseful.Mat4f;
 import nz.gen.geek_central.GLUseful.GLView;
@@ -128,27 +129,24 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                 g.translate(ViewRadius, ViewRadius);
                 g.drawColor(0, android.graphics.PorterDuff.Mode.SRC);
                   /* initialize all pixels to fully transparent */
-                  {
-                    final android.graphics.Paint BGPaint = new android.graphics.Paint();
-                    BGPaint.setStyle(android.graphics.Paint.Style.FILL);
-                    BGPaint.setColor(0xff0a6d01);
-                    BGPaint.setAntiAlias(true);
-                    g.drawArc
-                      (
-                        /*oval =*/ new android.graphics.RectF(-ViewRadius, -ViewRadius, ViewRadius, ViewRadius),
-                        /*startAngle =*/ 0.0f,
-                        /*sweepAngle =*/ 360.0f,
-                        /*useCenter =*/ false,
-                        /*paint =*/ BGPaint
-                      );
-                  }
+                g.drawArc
+                  (
+                    /*oval =*/ new android.graphics.RectF(-ViewRadius, -ViewRadius, ViewRadius, ViewRadius),
+                    /*startAngle =*/ 0.0f,
+                    /*sweepAngle =*/ 360.0f,
+                    /*useCenter =*/ false,
+                    /*paint =*/ new PaintBuilder()
+                        .setStyle(android.graphics.Paint.Style.FILL)
+                        .setColor(0xff0a6d01)
+                        .get()
+                  );
                   {
                     final String TheText = "Background Text";
-                    final android.graphics.Paint TextPaint = new android.graphics.Paint();
-                    TextPaint.setTextSize(36.0f);
-                    TextPaint.setTextAlign(android.graphics.Paint.Align.CENTER);
-                    TextPaint.setColor(0xfffff4aa);
-                    TextPaint.setAntiAlias(true);
+                    final android.graphics.Paint TextPaint = new PaintBuilder()
+                        .setTextSize(36.0f)
+                        .setTextAlign(android.graphics.Paint.Align.CENTER)
+                        .setColor(0xfffff4aa)
+                        .get();
                     final android.graphics.Rect TextBounds = new android.graphics.Rect();
                     TextPaint.getTextBounds(TheText, 0, TheText.length(), TextBounds);
                     final float YOffset = - (TextBounds.bottom + TextBounds.top) / 2.0f;
