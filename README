@@ -12,10 +12,15 @@ The source code includes the following Java utility classes:
   * GeomBuilder: basic management of 3D object geometry with choice of
     wireframe or shaded rendering, allowing customization of the
     vertex shader program to implement materials, lighting etc
-  * GLUseful: useful OpenGL-related stuff, including error-checking and
-    management of shader programs
-  * Lathe: uses GeomBuilder to construct objects with rotational symmetry
-  * Mat4f: functional operations on matrices representing 3D homogeneous coordinates
+  * GLUseful: useful OpenGL-related stuff, including error-checking
+    and management of shader programs
+  * GLView: takes an image rendered via a Canvas to an offscreen
+    Bitmap and displays it as a texture on a planar rectangle in
+    OpenGL
+  * Lathe: uses GeomBuilder to construct objects with rotational
+    symmetry
+  * Mat4f: functional operations on matrices representing 3D
+    homogeneous coordinates
   * Vec3f: functional operations on vectors representing 3D coordinates
 and the following C utility code:
   * gl_useful.c -- contains an alternative to glGetShaderInfoLog which
