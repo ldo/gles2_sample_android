@@ -180,6 +180,63 @@ public class GLUseful
 
       } /*FixedVec3Buffer*/;
 
+    public static class Vec2f
+      {
+        public final float x, y;
+
+        public Vec2f
+          (
+            float x,
+            float y
+          )
+          {
+            this.x = x;
+            this.y = y;
+          } /*Vec2f*/
+
+      } /*Vec2f*/;
+
+    public static class FixedVec2Buffer
+      /* converts an ArrayList of vectors to a vertex-attribute buffer. */
+      {
+        private final IntBuffer Buf;
+
+        public FixedVec2Buffer
+          (
+            ArrayList<Vec2f> FromArray
+          )
+          {
+            final int[] Vals = new int[FromArray.size() * 2];
+            int jv = 0;
+            for (int i = 0; i < FromArray.size(); ++i)
+              {
+                final Vec2f Vec = FromArray.get(i);
+                Vals[jv++] = (int)(Vec.x * Fixed1);
+                Vals[jv++] = (int)(Vec.y * Fixed1);
+              } /*for*/
+            Buf =
+                ByteBuffer.allocateDirect(Vals.length * 4)
+                .order(ByteOrder.nativeOrder())
+                .asIntBuffer()
+                .put(Vals);
+            Buf.position(0);
+          } /*FixedVec2Buffer*/
+
+        public void Apply
+          (
+            int AttribLoc,
+            boolean Enable
+          )
+          {
+            if (Enable)
+              {
+                gl.glEnableVertexAttribArray(AttribLoc);
+              } /*if*/
+            gl.glVertexAttribPointer(AttribLoc, 2, gl.GL_FIXED, true, 0, Buf);
+          } /*Apply*/
+
+      } /*FixedVec2Buffer*/;
+
     public static class ByteColorBuffer
       /* converts an ArrayList of colours to a vertex-attribute buffer. */
       {

@@ -192,10 +192,6 @@ public class SpinningArrow
             ArrowShape = MakeArrow(Shaded);
             SetupDone = true;
           } /*if*/
-        gl.glEnable(gl.GL_CULL_FACE);
-      /* gl.glEnable(gl.GL_MULTISAMPLE); */ /* doesn't seem to make any difference */
-        gl.glEnable(gl.GL_DEPTH_TEST);
-        gl.glViewport(0, 0, ViewWidth, ViewHeight);
         ProjectionMatrix =
                 Mat4f.frustum
                   (
@@ -218,8 +214,6 @@ public class SpinningArrow
       /* draws the arrow in its orientation according to the specified time. Setup
         must already have been called on current GL context. */
       {
-        gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
         final float Azi = (float)(Math.PI * AtTime);
         final float Elev = (float)(Math.PI * Math.sin(0.25 * Math.PI * AtTime));
         final float Roll = (float)(Math.PI / 10.0 * Math.sin(0.25 * Math.PI * AtTime));
