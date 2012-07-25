@@ -29,7 +29,9 @@ public class OnScreenView extends android.opengl.GLSurfaceView
     static final android.opengl.GLES20 gl = nz.gen.geek_central.GLUseful.GLUseful.gl; /* for easier references */
 
     public android.widget.TextView StatsView;
-    boolean Shaded, NewShaded; /* fixme: need to preserve last-set value across orientation changes */
+    final boolean DefaultShaded = true;
+    boolean Shaded, NewShaded;
+    double SetDrawTime = -1.0;
     int LastViewWidth = 0, LastViewHeight = 0;
     long ThisRun, LastRun, LastTimeTaken;
 
@@ -59,6 +61,12 @@ public class OnScreenView extends android.opengl.GLSurfaceView
               {
                 ArrowShape = new SpinningArrow(Shaded);
                 ArrowShape.Setup(LastViewWidth, LastViewHeight);
+              } /*if*/
+            if (SetDrawTime >= 0.0)
+              {
+              /* restoring instance state */
+                Render.ArrowShape.SetDrawTime(SetDrawTime);
+                SetDrawTime = - 1.0;
               } /*if*/
             ThisRun = android.os.SystemClock.uptimeMillis();
             gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -186,7 +194,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
       )
       {
         super(TheContext, TheAttributes);
-        Shaded = true; /* default */
+        Shaded = DefaultShaded;
         NewShaded = Shaded;
         setEGLContextClientVersion(2);
         setRenderer(Render);
@@ -229,5 +237,107 @@ public class OnScreenView extends android.opengl.GLSurfaceView
         Render.ArrowShape = null; /* losing the GL context anyway */
         Render.Background = null;
       } /*onPause*/
+
+/*
+    Implementation of saving/restoring instance state. Doing this
+    allows me to transparently restore scroll/zoom state if system
+    needs to kill me while I'm in the background, or on an orientation
+    change while I'm in the foreground.
+*/
+
+    protected static class SavedDrawViewState extends android.view.AbsSavedState
+      {
+        public static android.os.Parcelable.Creator<SavedDrawViewState> CREATOR =
+            new android.os.Parcelable.Creator<SavedDrawViewState>()
+              {
+                public SavedDrawViewState createFromParcel
+                  (
+                    android.os.Parcel SavedState
+                  )
+                  {
+                    final android.view.AbsSavedState SuperState =
+                        android.view.AbsSavedState.CREATOR.createFromParcel(SavedState);
+                    final android.os.Bundle MyState = SavedState.readBundle();
+                    return
+                        new SavedDrawViewState
+                          (
+                            SuperState,
+                            MyState.getBoolean("DrawShaded", DefaultShaded),
+                            MyState.getDouble("ArrowDrawTime", -1.0)
+                          );
+                  } /*createFromParcel*/
+
+                public SavedDrawViewState[] newArray
+                  (
+                    int NrElts
+                  )
+                  {
+                    return
+                        new SavedDrawViewState[NrElts];
+                  } /*newArray*/
+              } /*Parcelable.Creator*/;
+
+        public final android.os.Parcelable SuperState;
+      /* state that I'm actually interested in saving/restoring: */
+        public final boolean DrawShaded;
+        public final double ArrowDrawTime;
+
+        public SavedDrawViewState
+          (
+            android.os.Parcelable SuperState,
+            boolean DrawShaded,
+            double ArrowDrawTime
+          )
+          {
+            super(SuperState);
+            this.SuperState = SuperState;
+            this.DrawShaded = DrawShaded;
+            this.ArrowDrawTime = ArrowDrawTime;
+           } /*SavedDrawViewState*/
+
+        public void writeToParcel
+          (
+            android.os.Parcel SavedState,
+            int Flags
+          )
+          {
+            super.writeToParcel(SavedState, Flags);
+          /* put my state in a Bundle, where each item is associated with a
+            keyword name (unlike the Parcel itself, where items are identified
+            by order). I think this makes things easier to understand. */
+            final android.os.Bundle MyState = new android.os.Bundle();
+            MyState.putBoolean("DrawShaded", DrawShaded);
+            MyState.putDouble("ArrowDrawTime", ArrowDrawTime);
+            SavedState.writeBundle(MyState);
+          } /*writeToParcel*/
+
+      } /*SavedDrawViewState*/
+
+    @Override
+    public android.os.Parcelable onSaveInstanceState()
+      {
+        return
+            new SavedDrawViewState
+              (
+                super.onSaveInstanceState(),
+                Shaded,
+                Render.ArrowShape != null ? Render.ArrowShape.GetDrawTime() : -1.0
+              );
+      } /*onSaveInstanceState*/
+
+    private android.os.Parcelable LastSavedState = null;
+
+    @Override
+    public void onRestoreInstanceState
+      (
+        android.os.Parcelable SavedState
+      )
+      {
+        final SavedDrawViewState MyState = (SavedDrawViewState)SavedState;
+        super.onRestoreInstanceState(MyState.SuperState);
+        Shaded = MyState.DrawShaded;
+        NewShaded = Shaded; /* assume ArrowShape hasn't been created yet! */
+        SetDrawTime = MyState.ArrowDrawTime;
+      } /*onRestoreInstanceState*/
 
   } /*OnScreenView*/

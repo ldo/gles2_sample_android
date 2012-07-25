@@ -37,8 +37,7 @@ public class SpinningArrow
     private final boolean Shaded;
     private GeomBuilder.Obj ArrowShape;
     private boolean SetupDone;
-    private final double StartTime;
-    private double LastDraw;
+    private double StartTime,  LastDraw;
     Mat4f ProjectionMatrix;
 
     private static GeomBuilder.Obj MakeArrow
@@ -251,6 +250,24 @@ public class SpinningArrow
       {
         Draw(LastDraw);
       } /*DrawAgain*/
+
+    public double GetDrawTime()
+      {
+        return
+            LastDraw;
+      } /*GetDrawTime*/
+
+    public void SetDrawTime
+      (
+        double AtTime /* ignored if negative */
+      )
+      {
+        if (AtTime >= 0.0)
+          {
+            StartTime = System.currentTimeMillis() / 1000.0 - AtTime;
+            LastDraw = AtTime;
+          } /*if*/
+      } /*SetDrawTime*/
 
     public void Release()
       {
