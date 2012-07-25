@@ -29,7 +29,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
     static final android.opengl.GLES20 gl = nz.gen.geek_central.GLUseful.GLUseful.gl; /* for easier references */
 
     public android.widget.TextView StatsView;
-    final boolean DefaultShaded = true;
+    final static boolean DefaultShaded = true;
     boolean Shaded, NewShaded;
     double SetDrawTime = -1.0;
     int LastViewWidth = 0, LastViewHeight = 0;
@@ -240,9 +240,9 @@ public class OnScreenView extends android.opengl.GLSurfaceView
 
 /*
     Implementation of saving/restoring instance state. Doing this
-    allows me to transparently restore scroll/zoom state if system
-    needs to kill me while I'm in the background, or on an orientation
-    change while I'm in the foreground.
+    allows me to transparently restore state of animation and
+    rendering if system needs to kill me while I'm in the background,
+    or on an orientation change while I'm in the foreground.
 */
 
     protected static class SavedDrawViewState extends android.view.AbsSavedState
