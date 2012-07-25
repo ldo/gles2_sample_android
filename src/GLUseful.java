@@ -17,7 +17,7 @@ package nz.gen.geek_central.GLUseful;
     the License.
 */
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -145,20 +145,19 @@ public class GLUseful
     public static final int Fixed1 = 0x10000; /* for converting between float & fixed values */
 
     public static class FixedVec3Buffer
-      /* converts an ArrayList of vectors to a vertex-attribute buffer. */
+      /* converts a Collection of vectors to a vertex-attribute buffer. */
       {
         private final IntBuffer Buf;
 
         public FixedVec3Buffer
           (
-            ArrayList<Vec3f> FromArray
+            Collection<Vec3f> FromArray
           )
           {
             final int[] Vals = new int[FromArray.size() * 3];
             int jv = 0;
-            for (int i = 0; i < FromArray.size(); ++i)
+            for (Vec3f Vec : FromArray)
               {
-                final Vec3f Vec = FromArray.get(i);
                 Vals[jv++] = (int)(Vec.x * Fixed1);
                 Vals[jv++] = (int)(Vec.y * Fixed1);
                 Vals[jv++] = (int)(Vec.z * Fixed1);
@@ -203,20 +202,19 @@ public class GLUseful
       } /*Vec2f*/;
 
     public static class FixedVec2Buffer
-      /* converts an ArrayList of vectors to a vertex-attribute buffer. */
+      /* converts a Collection of vectors to a vertex-attribute buffer. */
       {
         private final IntBuffer Buf;
 
         public FixedVec2Buffer
           (
-            ArrayList<Vec2f> FromArray
+            Collection<Vec2f> FromArray
           )
           {
             final int[] Vals = new int[FromArray.size() * 2];
             int jv = 0;
-            for (int i = 0; i < FromArray.size(); ++i)
+            for (Vec2f Vec : FromArray)
               {
-                final Vec2f Vec = FromArray.get(i);
                 Vals[jv++] = (int)(Vec.x * Fixed1);
                 Vals[jv++] = (int)(Vec.y * Fixed1);
               } /*for*/
@@ -244,20 +242,19 @@ public class GLUseful
       } /*FixedVec2Buffer*/;
 
     public static class ByteColorBuffer
-      /* converts an ArrayList of colours to a vertex-attribute buffer. */
+      /* converts a Collection of colours to a vertex-attribute buffer. */
       {
         private final ByteBuffer Buf;
 
         public ByteColorBuffer
           (
-            ArrayList<Color> FromArray
+            Collection<Color> FromArray
           )
           {
             final byte[] Vals = new byte[FromArray.size() * 4];
             int jv = 0;
-            for (int i = 0; i < FromArray.size(); ++i)
+            for (Color Val : FromArray)
               {
-                final Color Val = FromArray.get(i);
                 Vals[jv++] = (byte)(Val.r * 255);
                 Vals[jv++] = (byte)(Val.g * 255);
                 Vals[jv++] = (byte)(Val.b * 255);
@@ -285,22 +282,23 @@ public class GLUseful
       } /*ByteColorBuffer*/;
 
     public static class VertIndexBuffer
-      /* converts an ArrayList of vertex indices to a buffer that can be passed to glDrawElements. */
+      /* converts a Collection of vertex indices to a buffer that can be passed to glDrawElements. */
       {
         private final ShortBuffer Buf;
         private final int Mode;
 
         public VertIndexBuffer
           (
-            ArrayList<Integer> FromArray,
+            Collection<Integer> FromArray,
             int Mode
           )
           {
             this.Mode = Mode;
             final short[] Indices = new short[FromArray.size()];
-            for (int i = 0; i < Indices.length; ++i)
+            int i = 0;
+            for (Integer v : FromArray)
               {
-                Indices[i] = (short)(int)FromArray.get(i);
+                Indices[i++] = (short)(int)v;
               } /*for*/
             Buf =
                 ByteBuffer.allocateDirect(Indices.length * 2)
