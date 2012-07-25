@@ -227,7 +227,7 @@ public class SpinningArrow
                 ).mul(
                     Mat4f.rotation(Mat4f.AXIS_Y, Roll)
                 ).mul(
-                    Mat4f.scaling(new Vec3f(2.0f, 2.0f, 2.0f))
+                    Mat4f.scaling(2.0f, 2.0f, 2.0f)
                 ),
             /*Uniforms =*/
                 new GeomBuilder.ShaderVarVal[]

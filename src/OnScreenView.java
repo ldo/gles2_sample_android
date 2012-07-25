@@ -159,12 +159,9 @@ public class OnScreenView extends android.opengl.GLSurfaceView
               }
             BGProjection = Mat4f.scaling
               (
-                new Vec3f
-                  (
-                    /*x =*/ ViewWidth > ViewHeight ? ViewHeight * 1.0f / ViewWidth : 1.0f,
-                    /*y =*/ ViewHeight > ViewWidth ? ViewWidth * 1.0f / ViewHeight : 1.0f,
-                    /*z =*/ 1.0f
-                  )
+                /*sx =*/ ViewWidth > ViewHeight ? ViewHeight * 1.0f / ViewWidth : 1.0f,
+                /*sy =*/ ViewHeight > ViewWidth ? ViewWidth * 1.0f / ViewHeight : 1.0f,
+                /*sz =*/ 1.0f
               );
           } /*onSurfaceChanged*/
 

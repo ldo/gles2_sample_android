@@ -495,6 +495,24 @@ public class Mat4f
 
     public static Mat4f scaling
       (
+        float sx,
+        float sy,
+        float sz
+      )
+      /* returns a matrix that will scale about the origin by the specified vector. */
+      {
+        return
+            new Mat4f
+              (
+                sx, 0.0f, 0.0f, 0.0f,
+                0.0f, sy, 0.0f, 0.0f,
+                0.0f, 0.0f, sz, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f
+              );
+      } /*scaling*/
+
+    public static Mat4f scaling
+      (
         Vec3f v,
         Vec3f origin
       )
