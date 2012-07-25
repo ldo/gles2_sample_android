@@ -24,7 +24,7 @@ import nz.gen.geek_central.GLUseful.Lathe;
 
 public class SpinningArrow
   {
-    static final android.opengl.GLES20 gl = new android.opengl.GLES20(); /* for easier references */
+    static final android.opengl.GLES20 gl = nz.gen.geek_central.GLUseful.GLUseful.gl; /* for easier references */
 
   /* parameters for arrow: */
     private static final float BodyThickness = 0.15f;

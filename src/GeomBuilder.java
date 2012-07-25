@@ -34,7 +34,7 @@ public class GeomBuilder
     specified GL context.
   */
   {
-    static final android.opengl.GLES20 gl = new android.opengl.GLES20(); /* for easier references */
+    static final android.opengl.GLES20 gl = GLUseful.gl; /* for easier references */
 
     private final boolean Shaded;
     private final ArrayList<Vec3f> Points;
