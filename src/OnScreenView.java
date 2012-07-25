@@ -325,8 +325,6 @@ public class OnScreenView extends android.opengl.GLSurfaceView
               );
       } /*onSaveInstanceState*/
 
-    private android.os.Parcelable LastSavedState = null;
-
     @Override
     public void onRestoreInstanceState
       (
