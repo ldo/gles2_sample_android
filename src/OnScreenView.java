@@ -52,6 +52,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
               {
                 if (ArrowShape != null)
                   {
+                    SetDrawTime = ArrowShape.GetDrawTime(); /* preserve animation continuity */
                     ArrowShape.Release();
                   } /*if*/
                 ArrowShape = null; /* allocate a new one */
