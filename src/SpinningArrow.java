@@ -137,7 +137,7 @@ public class SpinningArrow
                     (Shaded ?
                         "    float attenuate = 1.2 - 0.4 * gl_Position.z;\n" +
                         "    vec3 vertex_color = vec3(0.6, 0.6, 0.36);\n" +
-                        "    front_color = vec4\n" +
+                        "    frag_color = vec4\n" +
                         "      (\n" +
                         "            vertex_color\n" +
                         "        *\n" +

@@ -295,7 +295,7 @@ public class GeomBuilder
               /* optional additional uniform variable definitions for vertex shader */
             String VertexColorCalc,
               /* optional, compiled as part of vertex shader to implement lighting etc, must
-                assign values to "front_color" and "back_color" variables */
+                assign value to "frag_color" variable */
             Vec3f BoundMin,
             Vec3f BoundMax
           )
@@ -344,7 +344,7 @@ public class GeomBuilder
               } /*if*/
             if (Shaded)
               {
-                VS.append("varying vec4 front_color, back_color;\n");
+                VS.append("varying vec4 frag_color, back_color;\n");
               }
             else
               {
@@ -354,6 +354,11 @@ public class GeomBuilder
             VS.append("void main()\n");
             VS.append("  {\n");
             VS.append("    gl_Position = projection * model_view * vec4(vertex_position, 1.0);\n");
+            if (Shaded)
+              {
+                VS.append("    back_color = vec4(0.5, 0.5, 0.5, 1.0);\n");
+                  /* default if not overridden in VertexColorCalc */
+              } /*if*/
             if (VertexColorCalc != null)
               {
                 VS.append(VertexColorCalc);
@@ -365,21 +370,13 @@ public class GeomBuilder
                     String.format
                       (
                         GLUseful.StdLocale,
-                        "    %s = %s;\n",
-                        Shaded ?
-                            "front_color"
-                        :
-                            "frag_color",
+                        "    frag_color = %s;\n",
                         ColorBuffer != null ?
                             "vertex_color"
                         :
                             "vec4(0.5, 0.5, 0.5, 1.0)"
                       )
                   );
-                if (Shaded)
-                  {
-                    VS.append("    back_color = vec4(0.5, 0.5, 0.5, 1.0);\n");
-                  } /*if*/
               } /*if*/
             VS.append("  } /*main*/\n");
           /* use of vertex_texcoord NYI */
@@ -391,7 +388,7 @@ public class GeomBuilder
                     "precision mediump float;\n"
                 +
                     (Shaded ?
-                        "varying vec4 front_color, back_color;\n"
+                        "varying vec4 frag_color, back_color;\n"
                     :
                         "varying vec4 frag_color;\n"
                     )
@@ -402,7 +399,7 @@ public class GeomBuilder
                 +
                     (Shaded ?
                         "    if (gl_FrontFacing)\n" +
-                        "        gl_FragColor = front_color;\n" +
+                        "        gl_FragColor = frag_color;\n" +
                         "    else\n" +
                         "        gl_FragColor = back_color;\n"
                     :
@@ -498,7 +495,7 @@ public class GeomBuilder
           /* optional additional uniform variable definitions for vertex shader */
         String VertexColorCalc
           /* optional, compiled as part of vertex shader to implement lighting etc, must
-            assign values to "front_color" and "back_color" variables */
+            assign value to "frag_color" variable */
       )
       /* constructs and returns the final geometry ready for rendering. */
       {

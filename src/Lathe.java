@@ -71,7 +71,7 @@ public class Lathe
           /* optional additional uniform variable definitions for vertex shader */
         String VertexColorCalc
           /* optional, compiled as part of vertex shader to implement lighting etc, must
-            assign values to "front_color" and "back_color" variables */
+            assign value to "frag_color" variable */
       )
       /* rotates Points around Y axis with NrSectors steps, invoking the
         specified callbacks to obtain normal vectors, texture coordinates
