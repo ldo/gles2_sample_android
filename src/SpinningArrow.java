@@ -21,11 +21,10 @@ import nz.gen.geek_central.GLUseful.Vec3f;
 import nz.gen.geek_central.GLUseful.Mat4f;
 import nz.gen.geek_central.GLUseful.GeomBuilder;
 import nz.gen.geek_central.GLUseful.Lathe;
+import static nz.gen.geek_central.GLUseful.GLUseful.gl;
 
 public class SpinningArrow
   {
-    static final android.opengl.GLES20 gl = nz.gen.geek_central.GLUseful.GLUseful.gl; /* for easier references */
-
   /* parameters for arrow: */
     private static final float BodyThickness = 0.15f;
     private static final float HeadThickness = 0.3f;

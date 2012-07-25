@@ -23,11 +23,10 @@ import nz.gen.geek_central.GraphicsUseful.PaintBuilder;
 import nz.gen.geek_central.GLUseful.Vec3f;
 import nz.gen.geek_central.GLUseful.Mat4f;
 import nz.gen.geek_central.GLUseful.GLView;
+import static nz.gen.geek_central.GLUseful.GLUseful.gl;
 
 public class OnScreenView extends android.opengl.GLSurfaceView
   {
-    static final android.opengl.GLES20 gl = nz.gen.geek_central.GLUseful.GLUseful.gl; /* for easier references */
-
     public android.widget.TextView StatsView;
     final static boolean DefaultShaded = true;
     boolean Shaded;
