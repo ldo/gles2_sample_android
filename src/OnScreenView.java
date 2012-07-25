@@ -30,7 +30,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
 
     public android.widget.TextView StatsView;
     final static boolean DefaultShaded = true;
-    boolean Shaded, NewShaded;
+    boolean Shaded;
     double SetDrawTime = -1.0;
     int LastViewWidth = 0, LastViewHeight = 0;
     long ThisRun, LastRun, LastTimeTaken;
@@ -48,23 +48,10 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             GL10 _gl
           )
           {
-            if (NewShaded != Shaded)
-              {
-                if (ArrowShape != null)
-                  {
-                    SetDrawTime = ArrowShape.GetDrawTime(); /* preserve animation continuity */
-                    ArrowShape.Release();
-                  } /*if*/
-                ArrowShape = null; /* allocate a new one */
-                Shaded = NewShaded;
-              } /*if*/
             if (ArrowShape == null)
               {
                 ArrowShape = new SpinningArrow(Shaded);
                 ArrowShape.Setup(LastViewWidth, LastViewHeight);
-              } /*if*/
-            if (SetDrawTime >= 0.0)
-              {
               /* restoring instance state */
                 Render.ArrowShape.SetDrawTime(SetDrawTime);
                 SetDrawTime = - 1.0;
@@ -196,7 +183,6 @@ public class OnScreenView extends android.opengl.GLSurfaceView
       {
         super(TheContext, TheAttributes);
         Shaded = DefaultShaded;
-        NewShaded = Shaded;
         setEGLContextClientVersion(2);
         setRenderer(Render);
       /* setRenderMode(RENDERMODE_CONTINUOUSLY); */ /* default */
@@ -213,7 +199,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
         final boolean NewShaded
       )
       {
-        if (this.NewShaded != NewShaded)
+        if (NewShaded != Shaded)
           {
             queueEvent
               (
@@ -221,10 +207,13 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                   {
                     public void run()
                       {
-                      /* note I don't dispose of ArrowShape here, even though I'm
-                        on the GL thread, just in case the GL context is not actually
-                        set properly */
-                        OnScreenView.this.NewShaded = NewShaded;
+                        if (Render.ArrowShape != null)
+                          {
+                            SetDrawTime = Render.ArrowShape.GetDrawTime(); /* preserve animation continuity */
+                            Render.ArrowShape.Release();
+                            Render.ArrowShape = null;
+                            Shaded = NewShaded;
+                          } /*if*/
                       } /*run*/
                   } /*Runnable*/
               );
@@ -335,7 +324,6 @@ public class OnScreenView extends android.opengl.GLSurfaceView
         final SavedDrawViewState MyState = (SavedDrawViewState)SavedState;
         super.onRestoreInstanceState(MyState.SuperState);
         Shaded = MyState.DrawShaded;
-        NewShaded = Shaded; /* assume ArrowShape hasn't been created yet! */
         SetDrawTime = MyState.ArrowDrawTime;
       } /*onRestoreInstanceState*/
 
