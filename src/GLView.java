@@ -160,14 +160,15 @@ public class GLView
       )
       /* renders the bitmap into the current GL context. */
       {
+        GLUseful.ClearError();
         ViewProg.Use();
         gl.glUniformMatrix4fv(ProjectionVar, 1, false, Projection.to_floats(true, 16), 0);
         gl.glUniform1f(DepthVar, Depth);
         ViewCorners.Apply(VertexPositionVar, true);
         gl.glActiveTexture(gl.GL_TEXTURE0);
-      /* GLUseful.CheckError("setting current texture for view"); */ /* spurious error! */
+        GLUseful.CheckError("setting current texture for view");
         gl.glBindTexture(gl.GL_TEXTURE_2D, TextureID);
-      /* GLUseful.CheckError("binding current texture for view"); */ /* spurious error! */
+        GLUseful.CheckError("binding current texture for view");
         if (SendBits)
           {
             android.opengl.GLUtils.texImage2D
@@ -177,7 +178,7 @@ public class GLView
                 /*bitmap =*/ Bits,
                 /*border =*/ 0
               );
-          /* GLUseful.CheckError("sending view texture image"); */ /* spurious error! */
+            GLUseful.CheckError("sending view texture image");
             SendBits = false;
           } /*if*/
         gl.glEnable(gl.GL_BLEND);

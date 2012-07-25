@@ -93,6 +93,12 @@ public class GLUseful
         CheckError(String.format(StdLocale, DoingWhat, FmtArgs));
       } /*CheckError*/
 
+    public static void ClearError()
+      /* ensures there is no pending GL error condition. */
+      {
+        gl.glGetError(); /* and discard result */
+      } /*ClearError*/
+
     public static native String GetShaderInfoLog
       (
         int ShaderID
@@ -319,10 +325,6 @@ public class GLUseful
 
 /*
     Shader programs
-
-    Unfortunately, the error checks marked "spurious failures!" can
-    return mysterious failures after repeated shader creation.
-    Ignoring the errors seems to work fine.
 */
 
     public static class Shader
@@ -335,15 +337,16 @@ public class GLUseful
             String Source
           )
           {
+            ClearError();
             id = gl.glCreateShader(Type);
             if (id == 0)
               {
                 ThrowError("creating shader");
               } /*if*/
             gl.glShaderSource(id, Source);
-          /* CheckError("setting shader %d source", id); */ /* spurious failures! */
+            CheckError("setting shader %d source", id);
             gl.glCompileShader(id);
-          /* CheckError("compiling shader %d source", id); */ /* spurious failures! */
+            CheckError("compiling shader %d source", id);
             int[] Status = new int[1];
             gl.glGetShaderiv(id, gl.GL_COMPILE_STATUS, Status, 0);
             if (Status[0] == gl.GL_FALSE)
@@ -385,6 +388,7 @@ public class GLUseful
             boolean OwnShaders /* call Release on shaders on my own Release */
           )
           {
+            ClearError();
             id = gl.glCreateProgram();
             if (id == 0)
               {
@@ -394,9 +398,9 @@ public class GLUseful
             this.FragmentShader = FragmentShader;
             this.OwnShaders = OwnShaders;
             gl.glAttachShader(id, VertexShader.id);
-          /* CheckError("attaching vertex shader to program %d", id); */ /* spurious failures! */
+            CheckError("attaching vertex shader to program %d", id);
             gl.glAttachShader(id, FragmentShader.id);
-          /* CheckError("attaching fragment shader to program %d", id); */ /* spurious failures! */
+            CheckError("attaching fragment shader to program %d", id);
             gl.glLinkProgram(id);
             int[] Status = new int[1];
             gl.glGetProgramiv(id, gl.GL_LINK_STATUS, Status, 0);
