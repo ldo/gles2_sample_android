@@ -1,4 +1,4 @@
-package nz.gen.geek_central.gles2_sample;
+package nz.gen.geek_central.android.useful;
 /*
     Generic class for easier implementation of save/restore instance state
     in a custom View subclass. This class holds all the state as items in

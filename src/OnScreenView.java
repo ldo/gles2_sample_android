@@ -19,6 +19,7 @@ package nz.gen.geek_central.gles2_sample;
 */
 
 import javax.microedition.khronos.opengles.GL10;
+import nz.gen.geek_central.android.useful.BundledSavedState;
 import nz.gen.geek_central.GraphicsUseful.PaintBuilder;
 import nz.gen.geek_central.GLUseful.Vec3f;
 import nz.gen.geek_central.GLUseful.Mat4f;
