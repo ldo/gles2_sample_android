@@ -127,6 +127,12 @@ public class Vec3f
             new Vec3f(x * s, y * s, z * s, w);
       } /*mul*/
 
+    public Vec3f recip()
+      {
+        return
+            new Vec3f(1.0f / x, 1.0f / y, 1.0f / z);
+      } /*recip*/
+
     public float dot
       (
         Vec3f v

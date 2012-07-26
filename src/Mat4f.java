@@ -473,6 +473,24 @@ public class Mat4f
                 1.0f, 0.0f, 0.0f, v.x,
                 0.0f, 1.0f, 0.0f, v.y,
                 0.0f, 0.0f, 1.0f, v.z,
+                0.0f, 0.0f, 0.0f, v.w
+              );
+      } /*translation*/
+
+    public static Mat4f translation
+      (
+        float dx,
+        float dy,
+        float dz
+      )
+      /* returns a matrix that will translate by the specified amounts. */
+      {
+        return
+            new Mat4f
+              (
+                1.0f, 0.0f, 0.0f, dz,
+                0.0f, 1.0f, 0.0f, dy,
+                0.0f, 0.0f, 1.0f, dz,
                 0.0f, 0.0f, 0.0f, 1.0f
               );
       } /*translation*/
@@ -499,7 +517,7 @@ public class Mat4f
         float sy,
         float sz
       )
-      /* returns a matrix that will scale about the origin by the specified vector. */
+      /* returns a matrix that will scale about the origin by the specified factors. */
       {
         return
             new Mat4f
@@ -680,6 +698,29 @@ public class Mat4f
                 0.0f, 0.0f, 0.0f, 1.0f
               );
       } /*ortho*/
+
+    public static Mat4f map_cuboid
+      (
+        Vec3f src_lo,
+        Vec3f src_hi,
+        Vec3f dst_lo,
+        Vec3f dst_hi
+      )
+      /* returns a matrix that maps the axis-aligned cuboid defined by
+        opposite corners src_lo and src_hi to the one with opposite
+        corners dst_lo and dst_hi. */
+      {
+        return
+            (
+                translation(dst_lo)
+            ).mul(
+                scaling(dst_hi.sub(dst_lo))
+            ).mul(
+                scaling(src_hi.sub(src_lo).recip())
+            ).mul(
+                translation(src_lo.neg())
+            );
+      } /*map_cuboid*/
 
     public Vec3f xform
       (
