@@ -140,9 +140,19 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                         .get()
                   );
                   {
+                    final float FontScale;
+                      {
+                        final android.util.DisplayMetrics Metrics = new android.util.DisplayMetrics();
+                        (
+                            (android.view.WindowManager)
+                                getContext()
+                                    .getSystemService(android.content.Context.WINDOW_SERVICE)
+                        ).getDefaultDisplay().getMetrics(Metrics);
+                        FontScale = Metrics.density;
+                      }
                     final String TheText = "Background Text";
                     final android.graphics.Paint TextPaint = new PaintBuilder()
-                        .setTextSize(36.0f)
+                        .setTextSize(24.0f * FontScale)
                         .setTextAlign(android.graphics.Paint.Align.CENTER)
                         .setColor(0xfffff4aa)
                         .get();
