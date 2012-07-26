@@ -134,7 +134,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                     /*startAngle =*/ 0.0f,
                     /*sweepAngle =*/ 360.0f,
                     /*useCenter =*/ false,
-                    /*paint =*/ new PaintBuilder()
+                    /*paint =*/ new PaintBuilder(true)
                         .setStyle(android.graphics.Paint.Style.FILL)
                         .setColor(0xff0a6d01)
                         .get()
@@ -151,7 +151,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                         FontScale = Metrics.density;
                       }
                     final String TheText = "Background Text";
-                    final android.graphics.Paint TextPaint = new PaintBuilder()
+                    final android.graphics.Paint TextPaint = new PaintBuilder(true)
                         .setTextSize(24.0f * FontScale)
                         .setTextAlign(android.graphics.Paint.Align.CENTER)
                         .setColor(0xfffff4aa)

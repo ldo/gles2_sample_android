@@ -2,7 +2,7 @@ package nz.gen.geek_central.GraphicsUseful;
 /*
     Convenient construction of Paint objects by chaining setup calls. E.g.
 
-        Paint MyPaint = new PaintBuilder()
+        Paint MyPaint = new PaintBuilder(true)
             .setColor(SomeColor)
             .setTextSize(SomeTextSize)
             ... other settings ...
@@ -29,11 +29,17 @@ public class PaintBuilder
   {
     public final Paint ThePaint;
 
-    public PaintBuilder()
+    public PaintBuilder
+     (
+        boolean AntiAlias
+     )
       {
         ThePaint = new Paint();
-        ThePaint.setAntiAlias(true); /* because this is a much more useful default */
-        ThePaint.setFilterBitmap(true); /* ditto */
+        if (AntiAlias)
+          {
+            ThePaint.setAntiAlias(true);
+            ThePaint.setFilterBitmap(true);
+          } /*if*/
       } /*PaintBuilder*/
 
     public Paint get()
