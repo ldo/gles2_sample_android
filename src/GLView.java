@@ -29,23 +29,17 @@ public class GLView
     private boolean SendBits;
 
     public final int BitsWidth, BitsHeight;
-    public float Depth;
 
     private final GLUseful.Program ViewProg;
     private final int TextureID;
-    private final int ProjectionVar, DepthVar, VertexPositionVar;
+    private final int MappingVar, VertexPositionVar;
     private final GLUseful.FixedVec2Buffer ViewCorners;
     private final GLUseful.VertIndexBuffer ViewIndices;
 
     public GLView
       (
         int BitsWidth, /* dimensions of the Bitmap to create */
-        int BitsHeight,
-        float Left, /* position within the GL display, in normalized device coordinates */
-        float Bottom,
-        float Right,
-        float Top,
-        float Depth /* 0.0 to appear in front of everything, 1.0 to be behind everything */
+        int BitsHeight
       )
       {
         this.BitsWidth = BitsWidth;
@@ -57,41 +51,31 @@ public class GLView
             /*config =*/ Bitmap.Config.ARGB_8888
           );
         Draw = new android.graphics.Canvas(Bits);
-        this.Depth = Depth;
         ViewProg = new GLUseful.Program
           (
           /* vertex shader: */
-            String.format
-              (
-                GLUseful.StdLocale,
-                "uniform mat4 projection;\n" +
-                "uniform float depth;\n" +
-                "attribute vec2 vertex_position;\n" +
-                "varying vec2 view_coord;\n" +
-                "\n" +
-                "void main()\n" +
-                "  {\n" +
-                "    gl_Position = projection * vec4(vertex_position.x * %.5f + %.5f, vertex_position.y * %.5f + %.5f, depth * 2.0 - 1.0, 1.0);\n" +
-                "    view_coord = vec2(vertex_position.x, 1.0 - vertex_position.y);\n" +
-                  /* Y-coordinate inversion because default Canvas coordinates has Y increasing
-                    downwards, while OpenGL has Y increasing upwards */
-                "  }/*main*/\n",
-                Right - Left, /*xscale*/
-                Left, /*xoffset*/
-                Top - Bottom, /*yscale*/
-                Bottom /*yoffset*/
-              ),
+            "uniform mat4 mapping;\n" +
+            "attribute vec2 vertex_position;\n" +
+            "varying vec2 image_coord;\n" +
+            "\n" +
+            "void main()\n" +
+            "  {\n" +
+            "    gl_Position = mapping * vec4(2.0 * vertex_position.x - 1.0, 2.0 * vertex_position.y - 1.0, 0.0, 1.0);\n" +
+            "    image_coord = vec2(vertex_position.x, 1.0 - vertex_position.y);\n" +
+              /* Y-coordinate inversion because default Canvas coordinates has Y increasing
+                downwards, while OpenGL has Y increasing upwards */
+            "  }/*main*/\n",
           /* fragment shader: */
             String.format
               (
                 GLUseful.StdLocale,
                 "precision mediump float;\n" +
                 "uniform sampler2D view_image;\n" +
-                "varying vec2 view_coord;\n" +
+                "varying vec2 image_coord;\n" +
                 "\n" +
                 "void main()\n" +
                 "  {\n" +
-                "    gl_FragColor.rgba = texture2D(view_image, view_coord).%s;\n" +
+                "    gl_FragColor.rgba = texture2D(view_image, image_coord).%s;\n" +
                 "  }/*main*/\n",
                 /*IsBigEndian()*/false ? /* fixme: will this ever be true for Android? */
                     "abgr"
@@ -114,8 +98,7 @@ public class GLView
         ViewProg.Use();
         gl.glUniform1i(ViewProg.GetUniform("view_image", true), 0);
         GLUseful.CheckError("setting view texture sampler");
-        ProjectionVar = ViewProg.GetUniform("projection", true);
-        DepthVar = ViewProg.GetUniform("depth", true);
+        MappingVar = ViewProg.GetUniform("mapping", true);
         VertexPositionVar = ViewProg.GetAttrib("vertex_position", true);
           {
             final java.util.ArrayList<GLUseful.Vec2f> Temp = new java.util.ArrayList<GLUseful.Vec2f>();
@@ -156,14 +139,15 @@ public class GLView
 
     public void Draw
       (
-        Mat4f Projection
+        Mat4f Mapping
+          /* should map opposite corners at (-1, -1, 0) .. (+1, +1, 0) into
+            desired bounds at desired depth */
       )
       /* renders the bitmap into the current GL context. */
       {
         GLUseful.ClearError();
         ViewProg.Use();
-        gl.glUniformMatrix4fv(ProjectionVar, 1, false, Projection.to_floats(true, 16), 0);
-        gl.glUniform1f(DepthVar, Depth);
+        gl.glUniformMatrix4fv(MappingVar, 1, false, Mapping.to_floats(true, 16), 0);
         ViewCorners.Apply(VertexPositionVar, true);
         gl.glActiveTexture(gl.GL_TEXTURE0);
         GLUseful.CheckError("setting current texture for view");
@@ -187,6 +171,32 @@ public class GLView
         gl.glBlendFunc(gl.GL_ONE, gl.GL_ZERO);
         gl.glDisable(gl.GL_BLEND);
         gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+      } /*Draw*/
+
+    public void Draw
+      (
+        Mat4f Projection,
+        float Left,
+        float Bottom,
+        float Right,
+        float Top,
+        float Depth
+      )
+      {
+        Draw
+          (
+            (
+                Projection
+            ).mul(
+                Mat4f.map_cuboid
+                  (
+                    /*src_lo =*/ new Vec3f(-1.0f, -1.0f, 0.0f),
+                    /*src_hi =*/ new Vec3f(1.0f, 1.0f, 1.0f),
+                    /*dst_lo =*/ new Vec3f(Left, Bottom, Depth),
+                    /*dst_hi =*/ new Vec3f(Right, Top, Depth + 1.0f)
+                  )
+            )
+          );
       } /*Draw*/
 
     public void Release()

@@ -61,7 +61,15 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
             if (Background != null)
               {
-                Background.Draw(BGProjection);
+                Background.Draw
+                  (
+                    /*Projection =*/ BGProjection,
+                    /*Left =*/ -1.0f,
+                    /*Bottom =*/ -1.0f,
+                    /*Right =*/ 1.0f,
+                    /*Top =*/ 1.0f,
+                    /*Depth =*/ 0.99f /*disappears on some devices at 1.0f*/
+                  );
               } /*if*/
             ArrowShape.Draw();
             LastTimeTaken = android.os.SystemClock.uptimeMillis() - ThisRun;
@@ -111,12 +119,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             Background = new GLView
               (
                 /*BitsWidth =*/ ViewSize,
-                /*BitsHeight =*/ ViewSize,
-                /*Left =*/ -1.0f,
-                /*Bottom =*/ -1.0f,
-                /*Right =*/ 1.0f,
-                /*Top =*/ 1.0f,
-                /*Depth =*/ 0.99f /*disappears on some devices at 1.0f*/
+                /*BitsHeight =*/ ViewSize
               );
               {
                 final float ViewRadius = ViewSize / 2.0f;
