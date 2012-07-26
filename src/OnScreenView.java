@@ -234,84 +234,18 @@ public class OnScreenView extends android.opengl.GLSurfaceView
     or on an orientation change while I'm in the foreground.
 */
 
-    protected static class SavedDrawViewState extends android.view.AbsSavedState
-      {
-        public static android.os.Parcelable.Creator<SavedDrawViewState> CREATOR =
-            new android.os.Parcelable.Creator<SavedDrawViewState>()
-              {
-                public SavedDrawViewState createFromParcel
-                  (
-                    android.os.Parcel SavedState
-                  )
-                  {
-                    final android.view.AbsSavedState SuperState =
-                        android.view.AbsSavedState.CREATOR.createFromParcel(SavedState);
-                    final android.os.Bundle MyState = SavedState.readBundle();
-                    return
-                        new SavedDrawViewState
-                          (
-                            SuperState,
-                            MyState.getBoolean("DrawShaded", DefaultShaded),
-                            MyState.getDouble("ArrowDrawTime", -1.0)
-                          );
-                  } /*createFromParcel*/
-
-                public SavedDrawViewState[] newArray
-                  (
-                    int NrElts
-                  )
-                  {
-                    return
-                        new SavedDrawViewState[NrElts];
-                  } /*newArray*/
-              } /*Parcelable.Creator*/;
-
-        public final android.os.Parcelable SuperState;
-      /* state that I'm actually interested in saving/restoring: */
-        public final boolean DrawShaded;
-        public final double ArrowDrawTime;
-
-        public SavedDrawViewState
-          (
-            android.os.Parcelable SuperState,
-            boolean DrawShaded,
-            double ArrowDrawTime
-          )
-          {
-            super(SuperState);
-            this.SuperState = SuperState;
-            this.DrawShaded = DrawShaded;
-            this.ArrowDrawTime = ArrowDrawTime;
-           } /*SavedDrawViewState*/
-
-        public void writeToParcel
-          (
-            android.os.Parcel SavedState,
-            int Flags
-          )
-          {
-            super.writeToParcel(SavedState, Flags);
-          /* put my state in a Bundle, where each item is associated with a
-            keyword name (unlike the Parcel itself, where items are identified
-            by order). I think this makes things easier to understand. */
-            final android.os.Bundle MyState = new android.os.Bundle();
-            MyState.putBoolean("DrawShaded", DrawShaded);
-            MyState.putDouble("ArrowDrawTime", ArrowDrawTime);
-            SavedState.writeBundle(MyState);
-          } /*writeToParcel*/
-
-      } /*SavedDrawViewState*/
-
     @Override
     public android.os.Parcelable onSaveInstanceState()
       {
+        final android.os.Bundle MyState = new android.os.Bundle();
+        MyState.putBoolean("DrawShaded", Shaded);
+        MyState.putDouble
+          (
+            "ArrowDrawTime",
+            Render.ArrowShape != null ? Render.ArrowShape.GetDrawTime() : -1.0
+          );
         return
-            new SavedDrawViewState
-              (
-                super.onSaveInstanceState(),
-                Shaded,
-                Render.ArrowShape != null ? Render.ArrowShape.GetDrawTime() : -1.0
-              );
+            new BundledSavedState(super.onSaveInstanceState(), MyState);
       } /*onSaveInstanceState*/
 
     @Override
@@ -320,10 +254,10 @@ public class OnScreenView extends android.opengl.GLSurfaceView
         android.os.Parcelable SavedState
       )
       {
-        final SavedDrawViewState MyState = (SavedDrawViewState)SavedState;
-        super.onRestoreInstanceState(MyState.SuperState);
-        Shaded = MyState.DrawShaded;
-        SetDrawTime = MyState.ArrowDrawTime;
+        super.onRestoreInstanceState(((BundledSavedState)SavedState).SuperState);
+        final android.os.Bundle MyState = ((BundledSavedState)SavedState).MyState;
+        Shaded = MyState.getBoolean("DrawShaded", DefaultShaded);
+        SetDrawTime = MyState.getDouble("ArrowDrawTime", -1.0);
       } /*onRestoreInstanceState*/
 
   } /*OnScreenView*/
