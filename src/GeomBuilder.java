@@ -208,8 +208,10 @@ public class GeomBuilder
 
     public enum ShaderVarTypes
       {
-        TYPE_FLOAT,
-        TYPE_VEC3,
+        FLOAT,
+        VEC3,
+        COLOR3,
+        COLOR4,
       } /*ShaderVarTypes*/;
 
     public static class ShaderVarDef
@@ -235,7 +237,7 @@ public class GeomBuilder
       {
         public final String Name;
         public final Object Value;
-          /* Float for TYPE_FLOAT, array of 3 floats for TYPE_VEC3 */
+          /* Float for FLOAT, array of 3 floats for VEC3, GLUseful.Color for COLOR3 or COLOR4 */
 
         public ShaderVarVal
           (
@@ -330,11 +332,15 @@ public class GeomBuilder
                     VS.append("uniform ");
                     switch (VarDef.Type)
                       {
-                    case TYPE_FLOAT:
+                    case FLOAT:
                         VS.append("float");
                     break;
-                    case TYPE_VEC3:
+                    case VEC3:
+                    case COLOR3:
                         VS.append("vec3");
+                    break;
+                    case COLOR4:
+                        VS.append("vec4");
                     break;
                       } /*switch*/
                     VS.append(" ");
@@ -466,13 +472,25 @@ public class GeomBuilder
                       } /*if*/
                     switch (VarInfo.Type)
                       {
-                    case TYPE_FLOAT:
+                    case FLOAT:
                         gl.glUniform1f(VarInfo.Loc, (Float)VarRef.Value);
                     break;
-                    case TYPE_VEC3:
+                    case VEC3:
                           {
                             final float[] Value = (float[])VarRef.Value;
                             gl.glUniform3f(VarInfo.Loc, Value[0], Value[1], Value[2]);
+                          }
+                    break;
+                    case COLOR3:
+                          {
+                            final float[] Value = ((GLUseful.Color)VarRef.Value).ToFloats(3);
+                            gl.glUniform3f(VarInfo.Loc, Value[0], Value[1], Value[2]);
+                          }
+                    break;
+                    case COLOR4:
+                          {
+                            final float[] Value = ((GLUseful.Color)VarRef.Value).ToFloats(4);
+                            gl.glUniform4f(VarInfo.Loc, Value[0], Value[1], Value[2], Value[3]);
                           }
                     break;
                       } /*switch*/

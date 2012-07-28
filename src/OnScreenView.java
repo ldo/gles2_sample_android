@@ -53,7 +53,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
           {
             if (ArrowShape == null)
               {
-                ArrowShape = new SpinningArrow(Shaded);
+                ArrowShape = new SpinningArrow(getContext(), Shaded);
                 ArrowShape.Setup(LastViewWidth, LastViewHeight);
               /* restoring instance state */
                 Render.ArrowShape.SetDrawTime(SetDrawTime);
@@ -173,7 +173,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             javax.microedition.khronos.egl.EGLConfig Config
           )
           {
-            ArrowShape = new SpinningArrow(Shaded);
+            ArrowShape = new SpinningArrow(getContext(), Shaded);
               /* leave actual setup to onSurfaceChanged */
           } /*onSurfaceCreated*/
 

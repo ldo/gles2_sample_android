@@ -19,6 +19,7 @@ package nz.gen.geek_central.gles2_sample;
 
 import nz.gen.geek_central.GLUseful.Vec3f;
 import nz.gen.geek_central.GLUseful.Mat4f;
+import nz.gen.geek_central.GLUseful.GLUseful;
 import nz.gen.geek_central.GLUseful.GeomBuilder;
 import nz.gen.geek_central.GLUseful.Lathe;
 import static nz.gen.geek_central.GLUseful.GLUseful.gl;
@@ -32,6 +33,8 @@ public class SpinningArrow
     private static final float HeadLengthInner = 0.4f;
     private static final float BaseBevel = 0.2f * BodyThickness;
     private static final int NrSectors = 12;
+
+    private final GLUseful.Color ArrowColor;
 
     private final boolean Shaded;
     private GeomBuilder.Obj ArrowShape;
@@ -127,14 +130,14 @@ public class SpinningArrow
                 /*Uniforms =*/
                     new GeomBuilder.ShaderVarDef[]
                         {
-                            new GeomBuilder.ShaderVarDef("light_direction", GeomBuilder.ShaderVarTypes.TYPE_VEC3),
-                            new GeomBuilder.ShaderVarDef("light_brightness", GeomBuilder.ShaderVarTypes.TYPE_FLOAT),
-                            new GeomBuilder.ShaderVarDef("light_contrast", GeomBuilder.ShaderVarTypes.TYPE_FLOAT),
+                            new GeomBuilder.ShaderVarDef("light_direction", GeomBuilder.ShaderVarTypes.VEC3),
+                            new GeomBuilder.ShaderVarDef("light_brightness", GeomBuilder.ShaderVarTypes.FLOAT),
+                            new GeomBuilder.ShaderVarDef("light_contrast", GeomBuilder.ShaderVarTypes.FLOAT),
+                            new GeomBuilder.ShaderVarDef("vertex_color", GeomBuilder.ShaderVarTypes.COLOR3),
                         },
                 /*VertexColorCalc =*/
                     (Shaded ?
                         "    float attenuate = 1.2 - 0.4 * gl_Position.z;\n" +
-                        "    vec3 vertex_color = vec3(0.6, 0.6, 0.36);\n" +
                         "    frag_color = vec4\n" +
                         "      (\n" +
                         "            vertex_color\n" +
@@ -168,10 +171,12 @@ public class SpinningArrow
 
     public SpinningArrow
       (
+        android.content.Context ctx,
         boolean Shaded
       )
       {
         this.Shaded = Shaded;
+        ArrowColor = new GLUseful.Color(ctx.getResources().getColor(R.color.arrow));
         StartTime = System.currentTimeMillis() / 1000.0;
       /* creation of GL objects cannot be done here, must wait until
         I have a GL context */
@@ -233,6 +238,7 @@ public class SpinningArrow
                         new GeomBuilder.ShaderVarVal("light_direction", new float[]{-0.7f, 0.7f, 0.0f}),
                         new GeomBuilder.ShaderVarVal("light_brightness", 1.0f),
                         new GeomBuilder.ShaderVarVal("light_contrast", 0.5f),
+                        new GeomBuilder.ShaderVarVal("vertex_color", ArrowColor),
                     }
           );
       } /*Draw*/
