@@ -174,7 +174,7 @@ public class Vec3f
         /* returns the distance between the point and the origin. */
       {
         return
-            android.util.FloatMath.sqrt(x * x + y * y + z * z);
+            android.util.FloatMath.sqrt((x * x + y * y + z * z) / (w * w));
       } /*abs*/
 
     public Vec3f unit()
@@ -183,5 +183,12 @@ public class Vec3f
         return
             new Vec3f(x / abs, y / abs, z / abs);
       } /*unit*/
+
+    public Vec3f norm()
+      /* rescales so w = 1. */
+      {
+        return
+            new Vec3f(x / w, y / w, z / w);
+      } /*norm*/
 
   } /*Vec3f*/
