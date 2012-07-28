@@ -483,14 +483,14 @@ public class GeomBuilder
                     break;
                     case COLOR3:
                           {
-                            final float[] Value = ((GLUseful.Color)VarRef.Value).ToFloats(3);
-                            gl.glUniform3f(VarInfo.Loc, Value[0], Value[1], Value[2]);
+                            final GLUseful.Color TheColor = (GLUseful.Color)VarRef.Value;
+                            gl.glUniform3f(VarInfo.Loc, TheColor.r, TheColor.g, TheColor.b);
                           }
                     break;
                     case COLOR4:
                           {
-                            final float[] Value = ((GLUseful.Color)VarRef.Value).ToFloats(4);
-                            gl.glUniform4f(VarInfo.Loc, Value[0], Value[1], Value[2], Value[3]);
+                            final GLUseful.Color TheColor = (GLUseful.Color)VarRef.Value;
+                            gl.glUniform4f(VarInfo.Loc, TheColor.r, TheColor.g, TheColor.b, TheColor.a);
                           }
                     break;
                       } /*switch*/
