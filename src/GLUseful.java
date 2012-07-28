@@ -169,6 +169,14 @@ public class GLUseful
 
       } /*Color*/;
 
+    public static void ClearColor
+      (
+        Color UseColor
+      )
+      {
+        gl.glClearColor(UseColor.r, UseColor.g, UseColor.b, UseColor.a);
+      } /*ClearColor*/
+
 /*
     Vertex arrays
 
