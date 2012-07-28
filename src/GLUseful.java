@@ -134,23 +134,23 @@ public class GLUseful
             int TheColor /* standard Android format */
           )
           {
-            this.a = (TheColor >> 24 & 255) / 255.0f;
-            this.r = (TheColor >> 16 & 255) / 255.0f;
-            this.g = (TheColor >> 8 & 255) / 255.0f;
-            this.b = (TheColor & 255) / 255.0f;
+            a = (TheColor >> 24 & 255) / 255.0f;
+            r = (TheColor >> 16 & 255) / 255.0f;
+            g = (TheColor >> 8 & 255) / 255.0f;
+            b = (TheColor & 255) / 255.0f;
           } /*Color*/
 
         public int ToInt()
           /* converts to standard Android format. */
           {
             return
-                    (int)(a * 255) << 24
+                    Math.round(a * 255) << 24
                 |
-                    (int)(r * 255) << 16
+                    Math.round(r * 255) << 16
                 |
-                    (int)(g * 255) << 8
+                    Math.round(g * 255) << 8
                 |
-                    (int)(b * 255);
+                    Math.round(b * 255);
           } /*ToInt*/
 
         public float[] ToFloats
