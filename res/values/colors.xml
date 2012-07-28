@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="nothing">#00000000</color> <!-- full transparency -->
+    <color name="background">#ff0a6d01</color>
+    <color name="background_text">#fffff4aa</color>
+</resources>

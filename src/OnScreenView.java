@@ -23,6 +23,7 @@ import nz.gen.geek_central.android.useful.BundledSavedState;
 import nz.gen.geek_central.GraphicsUseful.PaintBuilder;
 import nz.gen.geek_central.GLUseful.Vec3f;
 import nz.gen.geek_central.GLUseful.Mat4f;
+import nz.gen.geek_central.GLUseful.GLUseful;
 import nz.gen.geek_central.GLUseful.GLView;
 import static nz.gen.geek_central.GLUseful.GLUseful.gl;
 
@@ -34,6 +35,8 @@ public class OnScreenView extends android.opengl.GLSurfaceView
     double SetDrawTime = -1.0;
     int LastViewWidth = 0, LastViewHeight = 0;
     long ThisRun, LastRun, LastTimeTaken;
+
+    private final int NullColor = getResources().getColor(R.color.nothing);
 
     private class OnScreenViewRenderer implements Renderer
       {
@@ -57,7 +60,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                 SetDrawTime = - 1.0;
               } /*if*/
             ThisRun = android.os.SystemClock.uptimeMillis();
-            gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            GLUseful.ClearColor(new GLUseful.Color(NullColor));
             gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
             if (Background != null)
               {
@@ -126,7 +129,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                 final android.graphics.Canvas g = Background.Draw;
                 g.save();
                 g.translate(ViewRadius, ViewRadius);
-                g.drawColor(0, android.graphics.PorterDuff.Mode.SRC);
+                g.drawColor(NullColor, android.graphics.PorterDuff.Mode.SRC);
                   /* initialize all pixels to fully transparent */
                 g.drawArc
                   (
@@ -136,25 +139,15 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                     /*useCenter =*/ false,
                     /*paint =*/ new PaintBuilder(true)
                         .setStyle(android.graphics.Paint.Style.FILL)
-                        .setColor(0xff0a6d01)
+                        .setColor(getResources().getColor(R.color.background))
                         .get()
                   );
                   {
-                    final float FontScale;
-                      {
-                        final android.util.DisplayMetrics Metrics = new android.util.DisplayMetrics();
-                        (
-                            (android.view.WindowManager)
-                                getContext()
-                                    .getSystemService(android.content.Context.WINDOW_SERVICE)
-                        ).getDefaultDisplay().getMetrics(Metrics);
-                        FontScale = Metrics.density;
-                      }
                     final String TheText = "Background Text";
                     final android.graphics.Paint TextPaint = new PaintBuilder(true)
-                        .setTextSize(24.0f * FontScale)
+                        .setTextSize(getResources().getDimension(R.dimen.background_text_size))
                         .setTextAlign(android.graphics.Paint.Align.CENTER)
-                        .setColor(0xfffff4aa)
+                        .setColor(getResources().getColor(R.color.background_text))
                         .get();
                     final android.graphics.Rect TextBounds = new android.graphics.Rect();
                     TextPaint.getTextBounds(TheText, 0, TheText.length(), TextBounds);
