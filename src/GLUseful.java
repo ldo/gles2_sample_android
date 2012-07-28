@@ -129,6 +129,44 @@ public class GLUseful
             this.a = a;
           } /*Color*/
 
+        public Color
+          (
+            int TheColor /* standard Android format */
+          )
+          {
+            this.a = (TheColor >> 24 & 255) / 255.0f;
+            this.r = (TheColor >> 16 & 255) / 255.0f;
+            this.g = (TheColor >> 8 & 255) / 255.0f;
+            this.b = (TheColor & 255) / 255.0f;
+          } /*Color*/
+
+        public int ToInt()
+          /* converts to standard Android format. */
+          {
+            return
+                    (int)(a * 255) << 24
+                |
+                    (int)(r * 255) << 16
+                |
+                    (int)(g * 255) << 8
+                |
+                    (int)(b * 255);
+          } /*ToInt*/
+
+        public float[] ToFloats
+          (
+            int NrComponents /* 3 or 4 */
+          )
+          {
+            return
+                NrComponents == 4 ?
+                    new float[] {r, g, b, a}
+                : NrComponents == 3 ?
+                    new float[] {r, g, b}
+                :
+                    null;
+          } /*ToFloats*/
+
       } /*Color*/;
 
 /*
