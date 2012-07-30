@@ -147,7 +147,7 @@ public class GLView
       {
         GLUseful.ClearError();
         ViewProg.Use();
-        gl.glUniformMatrix4fv(MappingVar, 1, false, Mapping.to_floats(true, 16), 0);
+        GLUseful.UniformMatrix4(MappingVar, Mapping);
         ViewCorners.Apply(VertexPositionVar, true);
         gl.glActiveTexture(gl.GL_TEXTURE0);
         GLUseful.CheckError("setting current texture for view");

@@ -177,6 +177,16 @@ public class GLUseful
         gl.glClearColor(UseColor.r, UseColor.g, UseColor.b, UseColor.a);
       } /*ClearColor*/
 
+    public static void UniformMatrix4
+      (
+        int VarLoc,
+        Mat4f TheMatrix
+      )
+      /* passes TheMatrix as the value of the specified shader uniform. */
+      {
+        gl.glUniformMatrix4fv(VarLoc, 1, false, TheMatrix.to_floats(true, 16), 0);
+      } /*UniformMatrix4*/
+
 /*
     Vertex arrays
 

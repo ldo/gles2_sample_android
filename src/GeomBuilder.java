@@ -446,8 +446,8 @@ public class GeomBuilder
           /* actually renders the geometry into the current GL context. */
           {
             Render.Use();
-            gl.glUniformMatrix4fv(ProjectionTransformVar, 1, false, ProjectionMatrix.to_floats(true, 16), 0);
-            gl.glUniformMatrix4fv(ModelViewTransformVar, 1, false, ModelViewMatrix.to_floats(true, 16), 0);
+            GLUseful.UniformMatrix4(ProjectionTransformVar, ProjectionMatrix);
+            GLUseful.UniformMatrix4(ModelViewTransformVar, ModelViewMatrix);
             if ((Uniforms != null) != (UniformLocs != null))
               {
                 throw new RuntimeException("uniform defs/vals mismatch");
