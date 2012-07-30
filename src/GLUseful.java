@@ -413,6 +413,7 @@ public class GLUseful
           } /*Shader*/
 
         public void Release()
+          /* frees up GL resources associated with this object. */
           {
             gl.glDeleteShader(id);
           } /*Release*/
@@ -528,6 +529,7 @@ public class GLUseful
           } /*Unuse*/
 
         public void Release()
+          /* frees up GL resources associated with this object. */
           {
             gl.glDetachShader(id, VertexShader.id);
             gl.glDetachShader(id, FragmentShader.id);

@@ -275,6 +275,7 @@ public class SpinningArrow
       } /*SetDrawTime*/
 
     public void Release()
+      /* frees up GL resources associated with this object. */
       {
         if (ArrowShape != null)
           {

@@ -501,6 +501,7 @@ public class GeomBuilder
           } /*Draw*/
 
         public void Release()
+          /* frees up GL resources associated with this object. */
           {
             Render.Release();
           } /*Release*/
