@@ -221,24 +221,7 @@ public class GeomBuilder
         private final int ModelViewTransformVar, ProjectionTransformVar;
         private final int VertexPositionVar, VertexNormalVar, VertexColorVar;
 
-        private static class UniformInfo
-          {
-            public final GLUseful.ShaderVarTypes Type;
-            public final int Loc;
-
-            public UniformInfo
-              (
-                GLUseful.ShaderVarTypes Type,
-                int Loc
-              )
-              {
-                this.Type = Type;
-                this.Loc = Loc;
-              } /*UniformInfo*/
-
-          } /*UniformInfo*/;
-
-        private final java.util.HashMap<String, UniformInfo> UniformLocs;
+        private final java.util.Map<String, GLUseful.UniformLocInfo> UniformLocs;
 
         private Obj
           (
@@ -282,26 +265,7 @@ public class GeomBuilder
               } /*if*/
             if (Uniforms != null)
               {
-                for (GLUseful.ShaderVarDef VarDef : Uniforms)
-                  {
-                    VS.append("uniform ");
-                    switch (VarDef.Type)
-                      {
-                    case FLOAT:
-                        VS.append("float");
-                    break;
-                    case VEC3:
-                    case COLOR3:
-                        VS.append("vec3");
-                    break;
-                    case COLOR4:
-                        VS.append("vec4");
-                    break;
-                      } /*switch*/
-                    VS.append(" ");
-                    VS.append(VarDef.Name);
-                    VS.append(";\n");
-                  } /*for*/
+                GLUseful.DefineUniforms(VS, Uniforms);
               } /*if*/
             if (Shaded)
               {
@@ -376,15 +340,7 @@ public class GeomBuilder
             VertexColorVar = Render.GetAttrib("vertex_color", false);
             if (Uniforms != null)
               {
-                UniformLocs = new java.util.HashMap<String, UniformInfo>();
-                for (GLUseful.ShaderVarDef VarDef : Uniforms)
-                  {
-                    UniformLocs.put
-                      (
-                        VarDef.Name,
-                        new UniformInfo(VarDef.Type, Render.GetUniform(VarDef.Name, false))
-                      );
-                  } /*for*/
+                UniformLocs = GLUseful.GetUniformLocs(Uniforms, Render);
               }
             else
               {
@@ -418,38 +374,7 @@ public class GeomBuilder
               } /*if*/
             if (Uniforms != null)
               {
-                for (GLUseful.ShaderVarVal VarRef : Uniforms)
-                  {
-                    final UniformInfo VarInfo = UniformLocs.get(VarRef.Name);
-                    if (VarInfo == null)
-                      {
-                        throw new RuntimeException("no such uniform variable “" + VarRef.Name + "”");
-                      } /*if*/
-                    switch (VarInfo.Type)
-                      {
-                    case FLOAT:
-                        gl.glUniform1f(VarInfo.Loc, (Float)VarRef.Value);
-                    break;
-                    case VEC3:
-                          {
-                            final float[] Value = (float[])VarRef.Value;
-                            gl.glUniform3f(VarInfo.Loc, Value[0], Value[1], Value[2]);
-                          }
-                    break;
-                    case COLOR3:
-                          {
-                            final GLUseful.Color TheColor = (GLUseful.Color)VarRef.Value;
-                            gl.glUniform3f(VarInfo.Loc, TheColor.r, TheColor.g, TheColor.b);
-                          }
-                    break;
-                    case COLOR4:
-                          {
-                            final GLUseful.Color TheColor = (GLUseful.Color)VarRef.Value;
-                            gl.glUniform4f(VarInfo.Loc, TheColor.r, TheColor.g, TheColor.b, TheColor.a);
-                          }
-                    break;
-                      } /*switch*/
-                  } /*for*/
+                GLUseful.SetUniformVals(Uniforms, UniformLocs);
               } /*if*/
             IndexBuffer.Draw();
             Render.Unuse();

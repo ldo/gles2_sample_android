@@ -588,7 +588,7 @@ public class GLUseful
       {
         public final String Name;
         public final Object Value;
-          /* Float for FLOAT, array of 3 floats for VEC3, GLUseful.Color for COLOR3 or COLOR4 */
+          /* Float for FLOAT, array of 3 floats for VEC3, Color for COLOR3 or COLOR4 */
 
         public ShaderVarVal
           (
@@ -601,5 +601,119 @@ public class GLUseful
           } /*ShaderVarVal*/
 
       } /*ShaderVarVal*/;
+
+    public static void DefineUniforms
+      (
+        Appendable Out,
+        ShaderVarDef[] Uniforms
+      )
+      /* writes GLSL to Out defining the specified uniform variables. Doesn't make any GL calls. */
+      {
+        try
+          {
+            for (ShaderVarDef VarDef : Uniforms)
+              {
+                Out.append("uniform ");
+                switch (VarDef.Type)
+                  {
+                case FLOAT:
+                    Out.append("float");
+                break;
+                case VEC3:
+                case COLOR3:
+                    Out.append("vec3");
+                break;
+                case COLOR4:
+                    Out.append("vec4");
+                break;
+                  } /*switch*/
+                Out.append(" ");
+                Out.append(VarDef.Name);
+                Out.append(";\n");
+              } /*for*/
+          }
+        catch (java.io.IOException Fail)
+          {
+            throw new RuntimeException(Fail.toString());
+          } /*try*/
+      } /*DefineUniforms*/
+
+    public static class UniformLocInfo
+      {
+        public final ShaderVarTypes Type;
+        public final int Loc;
+
+        public UniformLocInfo
+          (
+            ShaderVarTypes Type,
+            int Loc
+          )
+          {
+            this.Type = Type;
+            this.Loc = Loc;
+          } /*UniformLocInfo*/
+
+      } /*UniformLocInfo*/;
+
+    public static java.util.Map<String, UniformLocInfo> GetUniformLocs
+      (
+        ShaderVarDef[] Uniforms,
+        Program ForProgram
+      )
+      /* returns a mapping of uniform names to locations in the specified program. */
+      {
+        final java.util.HashMap<String, UniformLocInfo> Result =
+            new java.util.HashMap<String, UniformLocInfo>();
+        for (ShaderVarDef VarDef : Uniforms)
+          {
+            Result.put
+              (
+                VarDef.Name,
+                new UniformLocInfo(VarDef.Type, ForProgram.GetUniform(VarDef.Name, false))
+              );
+          } /*for*/
+        return
+            Result;
+      } /*GetUniformLocs*/
+
+    public static void SetUniformVals
+      (
+        ShaderVarVal[] Uniforms,
+        java.util.Map<String, UniformLocInfo> UniformLocs
+      )
+      {
+        for (ShaderVarVal VarRef : Uniforms)
+          {
+            final UniformLocInfo VarInfo = UniformLocs.get(VarRef.Name);
+            if (VarInfo == null)
+              {
+                throw new RuntimeException("no such uniform variable “" + VarRef.Name + "”");
+              } /*if*/
+            switch (VarInfo.Type)
+              {
+            case FLOAT:
+                gl.glUniform1f(VarInfo.Loc, (Float)VarRef.Value);
+            break;
+            case VEC3:
+                  {
+                    final float[] Value = (float[])VarRef.Value;
+                    gl.glUniform3f(VarInfo.Loc, Value[0], Value[1], Value[2]);
+                  }
+            break;
+            case COLOR3:
+                  {
+                    final Color TheColor = (Color)VarRef.Value;
+                    gl.glUniform3f(VarInfo.Loc, TheColor.r, TheColor.g, TheColor.b);
+                  }
+            break;
+            case COLOR4:
+                  {
+                    final Color TheColor = (Color)VarRef.Value;
+                    gl.glUniform4f(VarInfo.Loc, TheColor.r, TheColor.g, TheColor.b, TheColor.a);
+                  }
+            break;
+              } /*switch*/
+          } /*for*/
+      } /*SetUniformVals*/
 
   } /*GLUseful*/
