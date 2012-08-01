@@ -67,7 +67,7 @@ public class Lathe
         VectorFunc TexCoord, /* optional to compute texture coordinate at each point */
         ColorFunc VertexColor, /* optional to compute colour at each point */
         int NrSectors, /* must be at least 3 */
-        GeomBuilder.ShaderVarDef[] Uniforms,
+        GLUseful.ShaderVarDef[] Uniforms,
           /* optional additional uniform variable definitions for vertex shader */
         String VertexColorCalc
           /* optional, compiled as part of vertex shader to implement lighting etc, must

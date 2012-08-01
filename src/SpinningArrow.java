@@ -128,12 +128,12 @@ public class SpinningArrow
                 /*VertexColor =*/ null,
                 /*NrSectors =*/ NrSectors,
                 /*Uniforms =*/
-                    new GeomBuilder.ShaderVarDef[]
+                    new GLUseful.ShaderVarDef[]
                         {
-                            new GeomBuilder.ShaderVarDef("light_direction", GeomBuilder.ShaderVarTypes.VEC3),
-                            new GeomBuilder.ShaderVarDef("light_brightness", GeomBuilder.ShaderVarTypes.FLOAT),
-                            new GeomBuilder.ShaderVarDef("light_contrast", GeomBuilder.ShaderVarTypes.FLOAT),
-                            new GeomBuilder.ShaderVarDef("vertex_color", GeomBuilder.ShaderVarTypes.COLOR3),
+                            new GLUseful.ShaderVarDef("light_direction", GLUseful.ShaderVarTypes.VEC3),
+                            new GLUseful.ShaderVarDef("light_brightness", GLUseful.ShaderVarTypes.FLOAT),
+                            new GLUseful.ShaderVarDef("light_contrast", GLUseful.ShaderVarTypes.FLOAT),
+                            new GLUseful.ShaderVarDef("vertex_color", GLUseful.ShaderVarTypes.COLOR3),
                         },
                 /*VertexColorCalc =*/
                     (Shaded ?
@@ -233,12 +233,12 @@ public class SpinningArrow
                     Mat4f.scaling(2.0f, 2.0f, 2.0f)
                 ),
             /*Uniforms =*/
-                new GeomBuilder.ShaderVarVal[]
+                new GLUseful.ShaderVarVal[]
                     {
-                        new GeomBuilder.ShaderVarVal("light_direction", new float[]{-0.7f, 0.7f, 0.0f}),
-                        new GeomBuilder.ShaderVarVal("light_brightness", 1.0f),
-                        new GeomBuilder.ShaderVarVal("light_contrast", 0.5f),
-                        new GeomBuilder.ShaderVarVal("vertex_color", ArrowColor),
+                        new GLUseful.ShaderVarVal("light_direction", new float[]{-0.7f, 0.7f, 0.0f}),
+                        new GLUseful.ShaderVarVal("light_brightness", 1.0f),
+                        new GLUseful.ShaderVarVal("light_contrast", 0.5f),
+                        new GLUseful.ShaderVarVal("vertex_color", ArrowColor),
                     }
           );
       } /*Draw*/

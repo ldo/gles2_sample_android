@@ -206,51 +206,6 @@ public class GeomBuilder
           } /*if*/
       } /*AddPoly*/
 
-    public enum ShaderVarTypes
-      {
-        FLOAT,
-        VEC3,
-        COLOR3,
-        COLOR4,
-      } /*ShaderVarTypes*/;
-
-    public static class ShaderVarDef
-      /* definition of a user shader variable */
-      {
-        public final String Name;
-        public final ShaderVarTypes Type;
-
-        public ShaderVarDef
-          (
-            String Name,
-            ShaderVarTypes Type
-          )
-          {
-            this.Name = Name.intern();
-            this.Type = Type;
-          } /*ShaderVarDef*/
-
-      } /*ShaderVarDef*/;
-
-    public static class ShaderVarVal
-      /* specification of the value for a user shader variable */
-      {
-        public final String Name;
-        public final Object Value;
-          /* Float for FLOAT, array of 3 floats for VEC3, GLUseful.Color for COLOR3 or COLOR4 */
-
-        public ShaderVarVal
-          (
-            String Name,
-            Object Value
-          )
-          {
-            this.Name = Name.intern();
-            this.Value = Value;
-          } /*ShaderVarVal*/
-
-      } /*ShaderVarVal*/;
-
     public static class Obj
       /* representation of complete object geometry. */
       {
@@ -268,12 +223,12 @@ public class GeomBuilder
 
         private static class UniformInfo
           {
-            public final ShaderVarTypes Type;
+            public final GLUseful.ShaderVarTypes Type;
             public final int Loc;
 
             public UniformInfo
               (
-                ShaderVarTypes Type,
+                GLUseful.ShaderVarTypes Type,
                 int Loc
               )
               {
@@ -293,7 +248,7 @@ public class GeomBuilder
             GLUseful.FixedVec3Buffer TexCoordBuffer, /* optional, NYI */
             GLUseful.ByteColorBuffer ColorBuffer, /* optional */
             GLUseful.VertIndexBuffer IndexBuffer,
-            ShaderVarDef[] Uniforms,
+            GLUseful.ShaderVarDef[] Uniforms,
               /* optional additional uniform variable definitions for vertex shader */
             String VertexColorCalc,
               /* optional, compiled as part of vertex shader to implement lighting etc, must
@@ -327,7 +282,7 @@ public class GeomBuilder
               } /*if*/
             if (Uniforms != null)
               {
-                for (ShaderVarDef VarDef : Uniforms)
+                for (GLUseful.ShaderVarDef VarDef : Uniforms)
                   {
                     VS.append("uniform ");
                     switch (VarDef.Type)
@@ -422,7 +377,7 @@ public class GeomBuilder
             if (Uniforms != null)
               {
                 UniformLocs = new java.util.HashMap<String, UniformInfo>();
-                for (ShaderVarDef VarDef : Uniforms)
+                for (GLUseful.ShaderVarDef VarDef : Uniforms)
                   {
                     UniformLocs.put
                       (
@@ -441,7 +396,7 @@ public class GeomBuilder
           (
             Mat4f ProjectionMatrix,
             Mat4f ModelViewMatrix,
-            ShaderVarVal[] Uniforms /* optional additional values for uniforms */
+            GLUseful.ShaderVarVal[] Uniforms /* optional additional values for uniforms */
           )
           /* actually renders the geometry into the current GL context. */
           {
@@ -463,7 +418,7 @@ public class GeomBuilder
               } /*if*/
             if (Uniforms != null)
               {
-                for (ShaderVarVal VarRef : Uniforms)
+                for (GLUseful.ShaderVarVal VarRef : Uniforms)
                   {
                     final UniformInfo VarInfo = UniformLocs.get(VarRef.Name);
                     if (VarInfo == null)
@@ -510,7 +465,7 @@ public class GeomBuilder
 
     public Obj MakeObj
       (
-        ShaderVarDef[] Uniforms,
+        GLUseful.ShaderVarDef[] Uniforms,
           /* optional additional uniform variable definitions for vertex shader */
         String VertexColorCalc
           /* optional, compiled as part of vertex shader to implement lighting etc, must

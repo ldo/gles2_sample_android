@@ -553,4 +553,53 @@ public class GLUseful
 
       } /*Program*/
 
+/*
+    Shader variable management
+*/
+
+    public enum ShaderVarTypes
+      {
+        FLOAT,
+        VEC3,
+        COLOR3,
+        COLOR4,
+      } /*ShaderVarTypes*/;
+
+    public static class ShaderVarDef
+      /* definition of a user shader variable */
+      {
+        public final String Name;
+        public final ShaderVarTypes Type;
+
+        public ShaderVarDef
+          (
+            String Name,
+            ShaderVarTypes Type
+          )
+          {
+            this.Name = Name.intern();
+            this.Type = Type;
+          } /*ShaderVarDef*/
+
+      } /*ShaderVarDef*/;
+
+    public static class ShaderVarVal
+      /* specification of the value for a user shader variable */
+      {
+        public final String Name;
+        public final Object Value;
+          /* Float for FLOAT, array of 3 floats for VEC3, GLUseful.Color for COLOR3 or COLOR4 */
+
+        public ShaderVarVal
+          (
+            String Name,
+            Object Value
+          )
+          {
+            this.Name = Name.intern();
+            this.Value = Value;
+          } /*ShaderVarVal*/
+
+      } /*ShaderVarVal*/;
+
   } /*GLUseful*/
