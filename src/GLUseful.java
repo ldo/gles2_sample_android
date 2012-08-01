@@ -560,6 +560,7 @@ public class GLUseful
     public enum ShaderVarTypes
       {
         FLOAT,
+        FLOAT_ARRAY,
         VEC3,
         COLOR3,
         COLOR4,
@@ -570,6 +571,30 @@ public class GLUseful
       {
         public final String Name;
         public final ShaderVarTypes Type;
+        public final int NrElts; /* for array only */
+        public final String ArraySizeName; /* for array only */
+
+        public ShaderVarDef
+          (
+            String Name,
+            ShaderVarTypes Type,
+            int NrElts,
+            String ArraySizeName /* optional name to be defined as const int equal to NrElts */
+          )
+          {
+            this.Name = Name.intern();
+            this.Type = Type;
+            this.NrElts = NrElts;
+            this.ArraySizeName = ArraySizeName != null ? ArraySizeName.intern() : null;
+            if (Type != ShaderVarTypes.FLOAT_ARRAY && NrElts != 1)
+              {
+                throw new RuntimeException("only FLOAT_ARRAY can have NrElts ≠ 1");
+              } /*if*/
+            if (Type != ShaderVarTypes.FLOAT_ARRAY && ArraySizeName != null)
+              {
+                throw new RuntimeException("only FLOAT_ARRAY associated ArraySizeName");
+              } /*if*/
+          } /*ShaderVarDef*/
 
         public ShaderVarDef
           (
@@ -577,8 +602,7 @@ public class GLUseful
             ShaderVarTypes Type
           )
           {
-            this.Name = Name.intern();
-            this.Type = Type;
+            this(Name, Type, 1, null);
           } /*ShaderVarDef*/
 
       } /*ShaderVarDef*/;
@@ -588,7 +612,8 @@ public class GLUseful
       {
         public final String Name;
         public final Object Value;
-          /* Float for FLOAT, array of 3 floats for VEC3, Color for COLOR3 or COLOR4 */
+          /* Float for FLOAT, array of floats for FLOAT_ARRAY,
+            array of 3 floats for VEC3, Color for COLOR3 or COLOR4 */
 
         public ShaderVarVal
           (
@@ -613,10 +638,32 @@ public class GLUseful
           {
             for (ShaderVarDef VarDef : Uniforms)
               {
+                switch (VarDef.Type)
+                  {
+                case FLOAT_ARRAY:
+                    if (VarDef.ArraySizeName != null)
+                      {
+                        Out.append
+                          (
+                            String.format
+                              (
+                                StdLocale,
+                                "const int %s = %d;\n",
+                                VarDef.ArraySizeName,
+                                VarDef.NrElts
+                              )
+                          );
+                      } /*if*/
+                break;
+                  } /*switch*/
+              } /*for*/
+            for (ShaderVarDef VarDef : Uniforms)
+              {
                 Out.append("uniform ");
                 switch (VarDef.Type)
                   {
                 case FLOAT:
+                case FLOAT_ARRAY:
                     Out.append("float");
                 break;
                 case VEC3:
@@ -629,6 +676,16 @@ public class GLUseful
                   } /*switch*/
                 Out.append(" ");
                 Out.append(VarDef.Name);
+                if (VarDef.Type == ShaderVarTypes.FLOAT_ARRAY)
+                  {
+                    Out.append
+                      (
+                        VarDef.ArraySizeName != null ?
+                            "[" + VarDef.ArraySizeName + "]"
+                        :
+                            String.format(StdLocale, "[%d]", VarDef.NrElts)
+                      );
+                  } /*if*/
                 Out.append(";\n");
               } /*for*/
           }
@@ -639,6 +696,7 @@ public class GLUseful
       } /*DefineUniforms*/
 
     public static class UniformLocInfo
+      /* pre-fetching uniform variable locations--does this matter? */
       {
         public final ShaderVarTypes Type;
         public final int Loc;
@@ -679,8 +737,10 @@ public class GLUseful
     public static void SetUniformVals
       (
         ShaderVarVal[] Uniforms,
-        java.util.Map<String, UniformLocInfo> UniformLocs
+        java.util.Map<String, UniformLocInfo> UniformLocs /* as previously returned from GetUniformLocs */
       )
+      /* makes glUniformxx calls defining the specified values for the uniforms of
+        the current shader program. */
       {
         for (ShaderVarVal VarRef : Uniforms)
           {
@@ -693,6 +753,12 @@ public class GLUseful
               {
             case FLOAT:
                 gl.glUniform1f(VarInfo.Loc, (Float)VarRef.Value);
+            break;
+            case FLOAT_ARRAY:
+                  {
+                    final float[] Value = (float[])VarRef.Value;
+                    gl.glUniform1fv(VarInfo.Loc, Value.length, Value, 0);
+                  }
             break;
             case VEC3:
                   {
