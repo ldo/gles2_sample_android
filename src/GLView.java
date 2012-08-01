@@ -39,7 +39,11 @@ public class GLView
     public GLView
       (
         int BitsWidth, /* dimensions of the Bitmap to create */
-        int BitsHeight
+        int BitsHeight,
+        String CustomFragShading
+          /* optional replacement for fragment shader calculation,
+            defaults to "gl_FragColor = texture2D(view_image, image_coord);"
+            if omitted */
       )
       {
         this.BitsWidth = BitsWidth;
@@ -66,22 +70,22 @@ public class GLView
                 downwards, while OpenGL has Y increasing upwards */
             "  }/*main*/\n",
           /* fragment shader: */
-            String.format
-              (
-                GLUseful.StdLocale,
                 "precision mediump float;\n" +
                 "uniform sampler2D view_image;\n" +
                 "varying vec2 image_coord;\n" +
                 "\n" +
                 "void main()\n" +
-                "  {\n" +
-                "    gl_FragColor.rgba = texture2D(view_image, image_coord).%s;\n" +
-                "  }/*main*/\n",
-                /*IsBigEndian()*/false ? /* fixme: will this ever be true for Android? */
-                    "abgr"
+                "  {\n"
+            +
+                "    " +
+                (CustomFragShading != null ?
+                    CustomFragShading
                 :
-                    "rgba"
-              )
+                    "gl_FragColor = texture2D(view_image, image_coord);"
+                ) +
+                "\n"
+            +
+                "  }/*main*/\n"
           );
           {
             final int[] TextureIDs = new int[1];
@@ -127,6 +131,15 @@ public class GLView
             ViewIndices = new GLUseful.VertIndexBuffer(Temp, gl.GL_TRIANGLE_STRIP);
           }
         SendBits = true;
+      } /*GLView*/
+
+    public GLView
+      (
+        int BitsWidth,
+        int BitsHeight
+      )
+      {
+        this(BitsWidth, BitsHeight, null);
       } /*GLView*/
 
     public void DrawChanged()
