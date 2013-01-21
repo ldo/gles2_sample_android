@@ -33,9 +33,8 @@ public class BundledSavedState extends AbsSavedState
         return
             new BundledSavedState(super.onSaveInstanceState(), MyState);
 
-    Then, your onCreate and onRestoreInstanceState methods can cast their argument to an
-    instance of this class, and process the saved fields appropriately, e.g. for
-    onRestoreInstanceState:
+    Then, your onRestoreInstanceState method can cast its argument to an
+    instance of this class, and process the saved fields appropriately, e.g.:
         super.onRestoreInstanceState(((BundledSavedState)SavedState).SuperState);
         final android.os.Bundle MyState = ((BundledSavedState)SavedState).MyState;
         MyValue = MyState.getxxx("MyName", MyDefault);
