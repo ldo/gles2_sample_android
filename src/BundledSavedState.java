@@ -25,6 +25,22 @@ import android.os.Bundle;
 import android.view.AbsSavedState;
 
 public class BundledSavedState extends AbsSavedState
+  /* Create and return one of these in the onSaveInstanceState method in your custom View.
+    Sample call sequence:
+        final android.os.Bundle MyState = new android.os.Bundle();
+        MyState.putxxx("MyName", MyValue);
+        ... insert any other custom fields into the Bundle ...
+        return
+            new BundledSavedState(super.onSaveInstanceState(), MyState);
+
+    Then, your onCreate and onRestoreInstanceState methods can cast their argument to an
+    instance of this class, and process the saved fields appropriately, e.g. for
+    onRestoreInstanceState:
+        super.onRestoreInstanceState(((BundledSavedState)SavedState).SuperState);
+        final android.os.Bundle MyState = ((BundledSavedState)SavedState).MyState;
+        MyValue = MyState.getxxx("MyName", MyDefault);
+        ... retrieve any other custom fields ...
+  */
   {
 
     public static Parcelable.Creator<BundledSavedState> CREATOR =
@@ -52,13 +68,13 @@ public class BundledSavedState extends AbsSavedState
               } /*newArray*/
           } /*Parcelable.Creator*/;
 
-        public final Parcelable SuperState;
-        public final Bundle MyState;
+        public final Parcelable SuperState; /* pass to super.onRestoreInstanceState() */
+        public final Bundle MyState; /* all your custom state information saved here */
 
         public BundledSavedState
           (
-            Parcelable SuperState,
-            Bundle MyState
+            Parcelable SuperState, /* result from super.onSaveInstanceState() */
+            Bundle MyState /* put all your custom state information here */
           )
           {
             super(SuperState);
