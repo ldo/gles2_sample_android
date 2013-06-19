@@ -42,7 +42,7 @@ public class BundledSavedState extends AbsSavedState
   */
   {
 
-    public static Parcelable.Creator<BundledSavedState> CREATOR =
+    public static final Parcelable.Creator<BundledSavedState> CREATOR =
         new Parcelable.Creator<BundledSavedState>()
           {
             public BundledSavedState createFromParcel
