@@ -2,7 +2,7 @@ package nz.gen.geek_central.GLUseful;
 /*
     Useful OpenGL-ES-2.0-related definitions.
 
-    Copyright 2012 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2012, 2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
     use this file except in compliance with the License. You may obtain a copy of
@@ -111,7 +111,7 @@ public class GLUseful
 */
 
     public static class Color
-      /* RGB colours with transparency */
+      /* RGB colours with transparency. This class makes no GL calls. */
       {
         public final float r, g, b, a;
 
@@ -196,6 +196,8 @@ public class GLUseful
     are only available for ByteBuffer. Which is why buffers
     are allocated as ByteBuffers and then converted to more
     appropriate types.
+
+    These classes only make GL calls in their Apply methods.
 */
 
     public static final int Fixed1 = 0x10000; /* for converting between float & fixed values */
@@ -338,7 +340,8 @@ public class GLUseful
       } /*ByteColorBuffer*/;
 
     public static class VertIndexBuffer
-      /* converts a Collection of vertex indices to a buffer that can be passed to glDrawElements. */
+      /* converts a Collection of vertex indices to a buffer that can be passed to
+        glDrawElements. Only the Draw method makes GL calls. */
       {
         private final ShortBuffer Buf;
         private final int Mode;
@@ -379,60 +382,105 @@ public class GLUseful
 
 /*
     Shader programs
+
+    Shader and Program objects can be set up even before the GL context becomes valid,
+    and they can be retained after a GL context goes away and reused when another
+    one appears. GL calls can be deferred from the constructor to explicit Bind
+    methods, and Unbind methods can be used to tell the objects that the GL context
+    has gone away.
 */
 
     public static class Shader
       {
-        public final int id;
+        public final int Type;
+        public final String Source;
+        private int id;
 
         public Shader
           (
             int Type,
-            String Source
+            String Source,
+            boolean BindNow
+              /* true to do GL calls now, false to defer to later explicit call to Bind */
           )
           {
-            ClearError();
-            id = gl.glCreateShader(Type);
-            if (id == 0)
+            this.Type = Type;
+            this.Source = Source;
+            this.id = 0;
+            if (BindNow)
               {
-                ThrowError("creating shader");
-              } /*if*/
-            gl.glShaderSource(id, Source);
-            CheckError("setting shader %d source", id);
-            gl.glCompileShader(id);
-            CheckError("compiling shader %d source", id);
-            int[] Status = new int[1];
-            gl.glGetShaderiv(id, gl.GL_COMPILE_STATUS, Status, 0);
-            if (Status[0] == gl.GL_FALSE)
-              {
-                System.err.println
-                  (
-                        "GLUseful failed to compile shader source:\n"
-                    +
-                        Source
-                    +
-                        "\n"
-                  ); /* debug */
-                throw new RuntimeException
-                  (
-                        "Error compiling shader: "
-                    +
-                        GetShaderInfoLog(id)
-                  );
+                Bind();
               } /*if*/
           } /*Shader*/
 
-        public void Release()
+        public void Bind()
+          /* actually allocates GL resources and compiles the shader, if not already done so. */
+          {
+            if (id == 0)
+              {
+                ClearError();
+                id = gl.glCreateShader(Type);
+                if (id == 0)
+                  {
+                    ThrowError("creating shader");
+                  } /*if*/
+                gl.glShaderSource(id, Source);
+                CheckError("setting shader %d source", id);
+                gl.glCompileShader(id);
+                CheckError("compiling shader %d source", id);
+                int[] Status = new int[1];
+                gl.glGetShaderiv(id, gl.GL_COMPILE_STATUS, Status, 0);
+                if (Status[0] == gl.GL_FALSE)
+                  {
+                    System.err.println
+                      (
+                            "GLUseful failed to compile shader source:\n"
+                        +
+                            Source
+                        +
+                            "\n"
+                      ); /* debug */
+                    throw new RuntimeException
+                      (
+                            "Error compiling shader: "
+                        +
+                            GetShaderInfoLog(id)
+                      );
+                  } /*if*/
+              } /*if*/
+          } /*Bind*/
+
+        public void Unbind
+          (
+            boolean Release
+              /* true iff GL context still valid, so explicitly free up allocated resources.
+                false means GL context has gone (or is going), so simply forget allocated
+                GL resources without making any GL calls. */
+          )
           /* frees up GL resources associated with this object. */
           {
-            gl.glDeleteShader(id);
-          } /*Release*/
+            if (id > 0)
+              {
+                if (Release)
+                  {
+                    gl.glDeleteShader(id);
+                  } /*if*/
+                id = 0;
+              } /*if*/
+          } /*Unbind*/
 
-      } /*Shader*/
+        public int GetID()
+          /* only valid if Bind has been called! */
+          {
+            return
+                id;
+          } /*GetID*/
+
+      } /*Shader*/;
 
     public static class Program
       {
-        public final int id;
+        private int id;
         private final Shader VertexShader, FragmentShader;
         private final boolean OwnShaders;
 
@@ -440,52 +488,99 @@ public class GLUseful
           (
             Shader VertexShader,
             Shader FragmentShader,
-            boolean OwnShaders /* call Release on shaders on my own Release */
+            boolean OwnShaders, /* call Unbind on shaders on my own Unbind */
+            boolean BindNow
           )
           {
-            ClearError();
-            id = gl.glCreateProgram();
-            if (id == 0)
-              {
-                ThrowError("creating program");
-              } /*if*/
             this.VertexShader = VertexShader;
             this.FragmentShader = FragmentShader;
             this.OwnShaders = OwnShaders;
-            gl.glAttachShader(id, VertexShader.id);
-            CheckError("attaching vertex shader to program %d", id);
-            gl.glAttachShader(id, FragmentShader.id);
-            CheckError("attaching fragment shader to program %d", id);
-            gl.glLinkProgram(id);
-            int[] Status = new int[1];
-            gl.glGetProgramiv(id, gl.GL_LINK_STATUS, Status, 0);
-            if (Status[0] == gl.GL_FALSE)
+            this.id = 0;
+            if (BindNow)
               {
-                throw new RuntimeException
-                  (
-                        "Error linking program: "
-                    +
-                        gl.glGetProgramInfoLog(id)
-                  );
+                Bind();
               } /*if*/
           } /*Program*/
 
         public Program
           (
             String VertexShaderSource,
-            String FragmentShaderSource
+            String FragmentShaderSource,
+            boolean BindNow
           )
           {
             this
               (
-                new Shader(gl.GL_VERTEX_SHADER, VertexShaderSource),
-                new Shader(gl.GL_FRAGMENT_SHADER, FragmentShaderSource),
-                true
+                new Shader(gl.GL_VERTEX_SHADER, VertexShaderSource, BindNow),
+                new Shader(gl.GL_FRAGMENT_SHADER, FragmentShaderSource, BindNow),
+                true,
+                BindNow
               );
           } /*Program*/
 
+        public void Bind()
+          /* actually allocates GL resources, if not already done so. */ 
+          {
+            if (id == 0)
+              {
+                VertexShader.Bind();
+                FragmentShader.Bind();
+                ClearError();
+                id = gl.glCreateProgram();
+                if (id == 0)
+                  {
+                    ThrowError("creating program");
+                  } /*if*/
+                gl.glAttachShader(id, VertexShader.GetID());
+                CheckError("attaching vertex shader to program %d", id);
+                gl.glAttachShader(id, FragmentShader.GetID());
+                CheckError("attaching fragment shader to program %d", id);
+                gl.glLinkProgram(id);
+                int[] Status = new int[1];
+                gl.glGetProgramiv(id, gl.GL_LINK_STATUS, Status, 0);
+                if (Status[0] == gl.GL_FALSE)
+                  {
+                    throw new RuntimeException
+                      (
+                            "Error linking program: "
+                        +
+                            gl.glGetProgramInfoLog(id)
+                      );
+                  } /*if*/
+              } /*if*/
+          } /*Bind*/
+
+        public void Unbind
+          (
+            boolean Release
+              /* true iff GL context still valid, so explicitly free up allocated resources.
+                false means GL context has gone (or is going), so simply forget allocated
+                GL resources without making any GL calls. */
+          )
+          /* frees up GL resources associated with this object. */
+          {
+            if (id > 0)
+              {
+                if (Release)
+                  {
+                    gl.glDetachShader(id, VertexShader.id);
+                    gl.glDetachShader(id, FragmentShader.id);
+                    gl.glDeleteProgram(id);
+                  } /*if*/
+                id = 0;
+                if (OwnShaders)
+                  {
+                    VertexShader.Unbind(Release);
+                    FragmentShader.Unbind(Release);
+                  } /*if*/
+              } /*if*/
+          } /*Unbind*/
+
+      /* following calls all require a valid GL context */
+
         public void Validate()
           {
+            Bind();
             gl.glValidateProgram(id);
             int[] Status = new int[1];
             gl.glGetProgramiv(id, gl.GL_VALIDATE_STATUS, Status, 0);
@@ -506,6 +601,7 @@ public class GLUseful
             boolean MustExist
           )
           {
+            Bind();
             final int Result = gl.glGetUniformLocation(id, Name);
             if (MustExist && Result < 0)
               {
@@ -520,6 +616,7 @@ public class GLUseful
             boolean MustExist
           )
           {
+            Bind();
             final int Result = gl.glGetAttribLocation(id, Name);
             if (MustExist && Result < 0)
               {
@@ -530,31 +627,25 @@ public class GLUseful
 
         public void Use()
           {
+            Bind();
             gl.glUseProgram(id);
           } /*Use*/
 
         public void Unuse()
           {
+            if (id == 0)
+              {
+                throw new IllegalStateException("GLUseful program not in use");
+              } /*if*/
             gl.glUseProgram(0);
           } /*Unuse*/
 
-        public void Release()
-          /* frees up GL resources associated with this object. */
-          {
-            gl.glDetachShader(id, VertexShader.id);
-            gl.glDetachShader(id, FragmentShader.id);
-            if (OwnShaders)
-              {
-                VertexShader.Release();
-                FragmentShader.Release();
-              } /*if*/
-            gl.glDeleteProgram(id);
-          } /*Release*/
-
-      } /*Program*/
+      } /*Program*/;
 
 /*
     Shader variable management
+
+    Of the calls below, only GetUniformLocs and SetUniformVals require a valid GL context.
 */
 
     public enum ShaderVarTypes
@@ -782,4 +873,4 @@ public class GLUseful
           } /*for*/
       } /*SetUniformVals*/
 
-  } /*GLUseful*/
+  } /*GLUseful*/;

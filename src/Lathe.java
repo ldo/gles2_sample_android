@@ -3,7 +3,7 @@ package nz.gen.geek_central.GLUseful;
     Easy construction of objects with a single axis of rotational symmetry,
     building on GeomBuilder.
 
-    Copyright 2011, 2012 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2011-2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
     use this file except in compliance with the License. You may obtain a copy of
@@ -69,9 +69,11 @@ public class Lathe
         int NrSectors, /* must be at least 3 */
         GLUseful.ShaderVarDef[] Uniforms,
           /* optional additional uniform variable definitions for vertex shader */
-        String VertexColorCalc
+        String VertexColorCalc,
           /* optional, compiled as part of vertex shader to implement lighting etc, must
             assign value to "frag_color" variable */
+        boolean BindNow
+          /* true to do GL calls now, false to defer to later call to Bind or Draw */
       )
       /* rotates Points around Y axis with NrSectors steps, invoking the
         specified callbacks to obtain normal vectors, texture coordinates
@@ -189,7 +191,7 @@ public class Lathe
             ++i;
           } /*for*/
         return 
-            Geom.MakeObj(Uniforms, VertexColorCalc);
+            Geom.MakeObj(Uniforms, VertexColorCalc, BindNow);
       } /*Make*/
 
-  } /*Lathe*/
+  } /*Lathe*/;

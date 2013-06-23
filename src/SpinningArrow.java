@@ -2,7 +2,7 @@ package nz.gen.geek_central.gles2_sample;
 /*
     Graphical display of a spinning arrow.
 
-    Copyright 2012 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2012, 2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
     use this file except in compliance with the License. You may obtain a copy of
@@ -36,16 +36,16 @@ public class SpinningArrow
 
     private final GLUseful.Color ArrowColor;
 
-    private final boolean Shaded;
-    private GeomBuilder.Obj ArrowShape;
-    private boolean SetupDone;
+    private final GeomBuilder.Obj ArrowShape;
     private double StartTime,  LastDraw;
     Mat4f ProjectionMatrix;
 
-    private static GeomBuilder.Obj MakeArrow
+    public SpinningArrow
       (
+        android.content.Context ctx,
         boolean Shaded
       )
+      /* note no GL calls are made in constructor */
       {
         final float OuterTiltCos =
             HeadThickness / (float)Math.hypot(HeadThickness, HeadLengthOuter);
@@ -81,8 +81,7 @@ public class SpinningArrow
                   ), /* bevel */
                 new Vec3f(0.0f, -1.0f, 0.0f), /* base */
               };
-        return
-            Lathe.Make
+        ArrowShape = Lathe.Make
               (
                 /*Shaded =*/ Shaded,
                 /*Points =*/
@@ -165,22 +164,11 @@ public class SpinningArrow
                         "    float attenuate = 1.2 - 0.3 * gl_Position.z;\n" +
                         "    vec3 vertex_color = vec3(0.6, 0.6, 0.36);\n" +
                         "    frag_color = vec4(vertex_color * attenuate, 1.0);\n"
-                    )
+                    ),
+                /*BindNow =*/ false
               );
-      } /*MakeArrow*/
-
-    public SpinningArrow
-      (
-        android.content.Context ctx,
-        boolean Shaded
-      )
-      {
-        this.Shaded = Shaded;
         ArrowColor = new GLUseful.Color(ctx.getResources().getColor(R.color.arrow));
         StartTime = System.currentTimeMillis() / 1000.0;
-      /* creation of GL objects cannot be done here, must wait until
-        I have a GL context */
-        SetupDone = false;
       } /*SpinningArrow*/
 
     public void Setup
@@ -190,11 +178,6 @@ public class SpinningArrow
       )
       /* initial setup for drawing that doesn't need to be done for every frame. */
       {
-        if (!SetupDone)
-          {
-            ArrowShape = MakeArrow(Shaded);
-            SetupDone = true;
-          } /*if*/
         ProjectionMatrix =
                 Mat4f.frustum
                   (
@@ -209,6 +192,23 @@ public class SpinningArrow
                 Mat4f.translation(new Vec3f(0, 0, -3.0f))
             );
       } /*Setup*/
+
+    public void Bind()
+      {
+        ArrowShape.Bind();
+      } /*Bind*/
+
+    public void Unbind
+      (
+        boolean Release
+          /* true iff GL context still valid, so explicitly free up allocated resources.
+            false means GL context has gone (or is going), so simply forget allocated
+            GL resources without making any GL calls. */
+      )
+      /* frees up GL resources associated with this object. */
+      {
+        ArrowShape.Unbind(Release);
+      } /*Unbind*/
 
     public void Draw
       (
@@ -274,14 +274,4 @@ public class SpinningArrow
           } /*if*/
       } /*SetDrawTime*/
 
-    public void Release()
-      /* frees up GL resources associated with this object. */
-      {
-        if (ArrowShape != null)
-          {
-            ArrowShape.Release();
-          } /*if*/
-        ArrowShape = null;
-      } /*Release*/
-
-  } /*SpinningArrow*/
+  } /*SpinningArrow*/;

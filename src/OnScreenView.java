@@ -3,7 +3,7 @@ package nz.gen.geek_central.gles2_sample;
     Direct onscreen display of sample animation--the GLSurfaceView where the
     animation takes place.
 
-    Copyright 2012 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2012, 2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
     use this file except in compliance with the License. You may obtain a copy of
@@ -116,13 +116,14 @@ public class OnScreenView extends android.opengl.GLSurfaceView
               } /*if*/
             if (Background != null)
               {
-                Background.Release();
+                Background.Unbind(true);
               } /*if*/
             final int ViewSize = Math.min(ViewWidth, ViewHeight);
             Background = new GLView
               (
                 /*BitsWidth =*/ ViewSize,
-                /*BitsHeight =*/ ViewSize
+                /*BitsHeight =*/ ViewSize,
+                /*BindNow =*/ true
               );
               {
                 final float ViewRadius = ViewSize / 2.0f;
@@ -177,7 +178,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
               /* leave actual setup to onSurfaceChanged */
           } /*onSurfaceCreated*/
 
-      } /*OnScreenViewRenderer*/
+      } /*OnScreenViewRenderer*/;
 
     final OnScreenViewRenderer Render = new OnScreenViewRenderer();
 
@@ -216,7 +217,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                         if (Render.ArrowShape != null)
                           {
                             SetDrawTime = Render.ArrowShape.GetDrawTime(); /* preserve animation continuity */
-                            Render.ArrowShape.Release();
+                            Render.ArrowShape.Unbind(true);
                             Render.ArrowShape = null;
                             Shaded = NewShaded;
                           } /*if*/
@@ -229,9 +230,12 @@ public class OnScreenView extends android.opengl.GLSurfaceView
     @Override
     public void onPause()
       {
+        if (Render.ArrowShape != null)
+          {
+            Render.ArrowShape.Unbind(false); /* losing the GL context */
+          } /*if*/
+        Render.Background = null; /* need to (re)create in onSurfaceChanged anyway */
         super.onPause();
-        Render.ArrowShape = null; /* losing the GL context anyway */
-        Render.Background = null;
       } /*onPause*/
 
 /*
@@ -267,4 +271,4 @@ public class OnScreenView extends android.opengl.GLSurfaceView
         SetDrawTime = MyState.getDouble("ArrowDrawTime", -1.0);
       } /*onRestoreInstanceState*/
 
-  } /*OnScreenView*/
+  } /*OnScreenView*/;

@@ -4,7 +4,7 @@ package nz.gen.geek_central.GLUseful;
     This version is for OpenGL-ES 2.0 and allows customization of the vertex
     shader for control of material properties, lighting etc.
 
-    Copyright 2011, 2012 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2011-2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
     use this file except in compliance with the License. You may obtain a copy of
@@ -32,6 +32,8 @@ public class GeomBuilder
     AddQuad. Finally, call MakeObj to obtain a GeomBuilder.Obj that
     has a Draw method that will render the resulting geometry into a
     specified GL context.
+
+    GeomBuilder class itself makes no GL calls, only GeomBuilder.Obj does.
   */
   {
     static final android.opengl.GLES20 gl = GLUseful.gl; /* for easier references */
@@ -218,10 +220,11 @@ public class GeomBuilder
         private final GLUseful.Program Render;
         public final Vec3f BoundMin, BoundMax;
 
-        private final int ModelViewTransformVar, ProjectionTransformVar;
-        private final int VertexPositionVar, VertexNormalVar, VertexColorVar;
-
-        private final java.util.Map<String, GLUseful.UniformLocInfo> UniformLocs;
+        private boolean Bound;
+        private final GLUseful.ShaderVarDef[] UniformDefs;
+        private int ModelViewTransformVar, ProjectionTransformVar;
+        private int VertexPositionVar, VertexNormalVar, VertexColorVar;
+        private java.util.Map<String, GLUseful.UniformLocInfo> UniformLocs;
 
         private Obj
           (
@@ -237,7 +240,9 @@ public class GeomBuilder
               /* optional, compiled as part of vertex shader to implement lighting etc, must
                 assign value to "frag_color" variable */
             Vec3f BoundMin,
-            Vec3f BoundMax
+            Vec3f BoundMax,
+            boolean BindNow
+              /* true to do GL calls now, false to defer to later call to Bind or Draw */
           )
           {
             this.Shaded = Shaded;
@@ -248,6 +253,7 @@ public class GeomBuilder
             this.IndexBuffer = IndexBuffer;
             this.BoundMin = BoundMin;
             this.BoundMax = BoundMax;
+            UniformDefs = Uniforms;
             final StringBuilder VS = new StringBuilder();
             VS.append("uniform mat4 model_view, projection;\n");
             VS.append("attribute vec3 vertex_position;\n");
@@ -331,22 +337,50 @@ public class GeomBuilder
                         "    gl_FragColor = frag_color;\n"
                     )
                 +
-                    "  } /*main*/\n"
+                    "  } /*main*/\n",
+                BindNow
               );
-            ModelViewTransformVar = Render.GetUniform("model_view", true);
-            ProjectionTransformVar = Render.GetUniform("projection", true);
-            VertexPositionVar = Render.GetAttrib("vertex_position", true);
-            VertexNormalVar = Render.GetAttrib("vertex_normal", false);
-            VertexColorVar = Render.GetAttrib("vertex_color", false);
-            if (Uniforms != null)
+            Bound = false;
+            if (BindNow)
               {
-                UniformLocs = GLUseful.GetUniformLocs(Uniforms, Render);
-              }
-            else
-              {
-                UniformLocs = null;
+                Bind();
               } /*if*/
           } /*Obj*/
+
+        public void Bind()
+          {
+            if (!Bound)
+              {
+                Render.Bind();
+                ModelViewTransformVar = Render.GetUniform("model_view", true);
+                ProjectionTransformVar = Render.GetUniform("projection", true);
+                VertexPositionVar = Render.GetAttrib("vertex_position", true);
+                VertexNormalVar = Render.GetAttrib("vertex_normal", false);
+                VertexColorVar = Render.GetAttrib("vertex_color", false);
+                if (UniformDefs != null)
+                  {
+                    UniformLocs = GLUseful.GetUniformLocs(UniformDefs, Render);
+                  }
+                else
+                  {
+                    UniformLocs = null;
+                  } /*if*/
+                Bound = true;
+              } /*if*/
+          } /*Bind*/
+
+        public void Unbind
+          (
+            boolean Release
+              /* true iff GL context still valid, so explicitly free up allocated resources.
+                false means GL context has gone (or is going), so simply forget allocated
+                GL resources without making any GL calls. */
+          )
+          /* frees up GL resources associated with this object. */
+          {
+            Render.Unbind(Release);
+            Bound = false;
+          } /*Unbind*/
 
         public void Draw
           (
@@ -356,6 +390,7 @@ public class GeomBuilder
           )
           /* actually renders the geometry into the current GL context. */
           {
+            Bind();
             Render.Use();
             GLUseful.UniformMatrix4(ProjectionTransformVar, ProjectionMatrix);
             GLUseful.UniformMatrix4(ModelViewTransformVar, ModelViewMatrix);
@@ -380,21 +415,17 @@ public class GeomBuilder
             Render.Unuse();
           } /*Draw*/
 
-        public void Release()
-          /* frees up GL resources associated with this object. */
-          {
-            Render.Release();
-          } /*Release*/
-
       } /*Obj*/;
 
     public Obj MakeObj
       (
         GLUseful.ShaderVarDef[] Uniforms,
           /* optional additional uniform variable definitions for vertex shader */
-        String VertexColorCalc
+        String VertexColorCalc,
           /* optional, compiled as part of vertex shader to implement lighting etc, must
             assign value to "frag_color" variable */
+        boolean BindNow
+          /* true to do GL calls now, false to defer to later call to Bind or Draw */
       )
       /* constructs and returns the final geometry ready for rendering. */
       {
@@ -431,8 +462,9 @@ public class GeomBuilder
                 Uniforms,
                 VertexColorCalc,
                 BoundMin,
-                BoundMax
+                BoundMax,
+                BindNow
               );
       } /*MakeObj*/
 
-  } /*GeomBuilder*/
+  } /*GeomBuilder*/;
