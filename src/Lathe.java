@@ -95,8 +95,8 @@ public class Lathe
             if (i < NrSectors)
               {
                 final float Angle = (float)(2.0 * Math.PI * i / NrSectors);
-                final float Cos = android.util.FloatMath.cos(Angle);
-                final float Sin = android.util.FloatMath.sin(Angle);
+                final float Cos = (float)Math.cos(Angle);
+                final float Sin = (float)Math.sin(Angle);
                 for (int j = 0; j < NrPoints; ++j)
                   {
                     final Vec3f Vertex = Point.Get(j);

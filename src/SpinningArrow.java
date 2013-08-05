@@ -75,8 +75,8 @@ public class SpinningArrow
                 new Vec3f(1.0f, 0.0f, 0.0f), /* body */
                 new Vec3f
                   (
-                    android.util.FloatMath.sqrt(0.5f),
-                    -android.util.FloatMath.sqrt(0.5f),
+                    (float)Math.sqrt(0.5f),
+                    -(float)Math.sqrt(0.5f),
                     0.0f
                   ), /* bevel */
                 new Vec3f(0.0f, -1.0f, 0.0f), /* base */
@@ -117,9 +117,9 @@ public class SpinningArrow
                             return
                                 new Vec3f
                                   (
-                                    OrigNormal.x * android.util.FloatMath.cos(FaceAngle),
+                                    OrigNormal.x * (float)Math.cos(FaceAngle),
                                     OrigNormal.y,
-                                    OrigNormal.x * android.util.FloatMath.sin(FaceAngle)
+                                    OrigNormal.x * (float)Math.sin(FaceAngle)
                                   );
                           } /*Get*/
                       } /*VectorFunc*/,
