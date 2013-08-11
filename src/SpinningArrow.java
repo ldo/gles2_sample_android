@@ -224,11 +224,11 @@ public class SpinningArrow
           (
             /*ProjectionMatrix =*/ ProjectionMatrix,
             /*ModelViewMatrix =*/
-                    Mat4f.rotation(Mat4f.AXIS_Z, Azi)
+                    Mat4f.rotation(Mat4f.AXIS_Z, Azi, false)
                 .mul(
-                    Mat4f.rotation(Mat4f.AXIS_X, Elev)
+                    Mat4f.rotation(Mat4f.AXIS_X, Elev, false)
                 ).mul(
-                    Mat4f.rotation(Mat4f.AXIS_Y, Roll)
+                    Mat4f.rotation(Mat4f.AXIS_Y, Roll, false)
                 ).mul(
                     Mat4f.scaling(2.0f, 2.0f, 2.0f)
                 ),

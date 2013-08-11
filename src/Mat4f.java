@@ -545,9 +545,11 @@ public class Mat4f
     public static Mat4f rotation
       (
         int axis, /* AXIS_X, AXIS_Y or AXIS_Z */
-        float radians
+        float angle,
+        boolean degrees
       )
       {
+        final float radians = degrees ? (float)Math.toRadians(angle) : angle;
         final float cos = (float)Math.cos(radians);
         final float sin = (float)Math.sin(radians);
         Mat4f m;
@@ -591,18 +593,20 @@ public class Mat4f
     public static Mat4f rotation
       (
         int axis, /* AXIS_X, AXIS_Y or AXIS_Z */
-        float radians,
+        float angle,
+        boolean degrees,
         Vec3f origin
       )
       {
         return
-            translation(origin).mul(rotation(axis, radians)).mul(translation(origin.neg()));
+            translation(origin).mul(rotation(axis, angle, degrees)).mul(translation(origin.neg()));
       } /*rotation*/
 
     public static Mat4f rotation
       (
         Vec3f axis, /* assumed unit vector */
-        float radians
+        float angle,
+        boolean degrees
       )
       /* generates a rotation about an arbitrary axis passing through the origin. */
       {
@@ -615,22 +619,23 @@ public class Mat4f
           );
           /* rotate within x-z plane about y to align with x-axis */
         return
-                rotation(AXIS_Z, zangle)
+                rotation(AXIS_Z, zangle, false)
             .mul(
-                rotation(AXIS_Y, - yangle)
+                rotation(AXIS_Y, - yangle, false)
             ).mul(
-                rotation(AXIS_X, radians)
+                rotation(AXIS_X, angle, degrees)
             ).mul(
-                rotation(AXIS_Y, yangle)
+                rotation(AXIS_Y, yangle, false)
             ).mul(
-                rotation(AXIS_Z, - zangle)
+                rotation(AXIS_Z, - zangle, false)
             );
       } /*rotation*/
 
     public static Mat4f rotation
       (
         Vec3f axis,
-        float radians,
+        float angle,
+        boolean degrees,
         Vec3f origin
       )
       /* generates a rotation about an arbitrary axis. */
@@ -638,7 +643,7 @@ public class Mat4f
         return
                 translation(origin)
             .mul(
-                rotation(axis.sub(origin), radians))
+                rotation(axis.sub(origin), angle, degrees))
             .mul(
                 translation(origin.neg())
             );
@@ -652,7 +657,7 @@ public class Mat4f
       /* generates a rotation matrix which, when applied to src, turns it into dst. */
       {
         return
-            rotation(src.cross(dst).unit(), (float)Math.acos(src.unit().dot(dst.unit())));
+            rotation(src.cross(dst).unit(), (float)Math.acos(src.unit().dot(dst.unit())), false);
       } /*rotate_align*/
 
     public static Mat4f frustum
