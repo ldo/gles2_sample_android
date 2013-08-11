@@ -2,7 +2,7 @@ package nz.gen.geek_central.gles2_sample;
 /*
     Direct onscreen display of sample animation.
 
-    Copyright 2012 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2012, 2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
     use this file except in compliance with the License. You may obtain a copy of
@@ -21,21 +21,21 @@ public class OnScreen extends android.app.Activity
   {
     OnScreenView TheOnScreenView;
 
-    class RenderingDialog
+    class AnimationsDialog
         extends android.app.Dialog
         implements android.content.DialogInterface.OnDismissListener
       {
         final android.content.Context ctx;
         android.widget.RadioGroup TheButtons;
 
-        public RenderingDialog
+        public AnimationsDialog
           (
             android.content.Context ctx
           )
           {
             super(ctx);
             this.ctx = ctx;
-          } /*RenderingDialog*/
+          } /*AnimationsDialog*/
 
         @Override
         public void onCreate
@@ -43,7 +43,7 @@ public class OnScreen extends android.app.Activity
             android.os.Bundle savedInstanceState
           )
           {
-            setTitle(R.string.rendering);
+            setTitle(R.string.choose_animation);
             final android.widget.LinearLayout MainLayout = new android.widget.LinearLayout(ctx);
             MainLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
             setContentView(MainLayout);
@@ -51,23 +51,18 @@ public class OnScreen extends android.app.Activity
             final android.view.ViewGroup.LayoutParams ButtonLayout =
                 new android.view.ViewGroup.LayoutParams
                   (
-                    android.view.ViewGroup.LayoutParams.FILL_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                     android.view.ViewGroup.LayoutParams.WRAP_CONTENT
                   );
+            for (OnScreenView.Animations Animation : OnScreenView.Animations.values())
               {
-                final android.widget.RadioButton RenderingShaded =
-                    new android.widget.RadioButton(ctx);
-                RenderingShaded.setText(R.string.shaded);
-                RenderingShaded.setId(1);
-                final android.widget.RadioButton RenderingWireframe =
-                    new android.widget.RadioButton(ctx);
-                RenderingWireframe.setText(R.string.wireframe);
-                RenderingWireframe.setId(0);
-                TheButtons.addView(RenderingShaded, 0, ButtonLayout);
-                TheButtons.addView(RenderingWireframe, 1, ButtonLayout);
+                final android.widget.RadioButton ThisChoice = new android.widget.RadioButton(ctx);
+                ThisChoice.setText(Animation.NameID);
+                ThisChoice.setId(Animation.NameID);
+                TheButtons.addView(ThisChoice, TheButtons.getChildCount(), ButtonLayout);
               }
             MainLayout.addView(TheButtons, ButtonLayout);
-            TheButtons.check(TheOnScreenView.GetShaded() ? 1 : 0);
+            TheButtons.check(TheOnScreenView.GetAnimation().NameID);
             setOnDismissListener(this);
           } /*onCreate*/
 
@@ -77,18 +72,21 @@ public class OnScreen extends android.app.Activity
             android.content.DialogInterface TheDialog
           )
           {
-            TheOnScreenView.SetShaded(TheButtons.getCheckedRadioButtonId() != 0);
+            TheOnScreenView.SetAnimation
+              (
+                OnScreenView.Animations.WithName(TheButtons.getCheckedRadioButtonId())
+              );
           } /*onDismiss*/
 
-      } /*RenderingDialog*/
+      } /*AnimationsDialog*/
 
     @Override
     public void onCreate
       (
-        android.os.Bundle SavedInstanceState
+        android.os.Bundle ToRestore
       )
       {
-        super.onCreate(SavedInstanceState);
+        super.onCreate(ToRestore);
         setContentView(R.layout.onscreen);
         TheOnScreenView = (OnScreenView)findViewById(R.id.main);
         TheOnScreenView.StatsView = (android.widget.TextView)findViewById(R.id.stats);
@@ -101,7 +99,7 @@ public class OnScreen extends android.app.Activity
                     android.view.View TheView
                   )
                   {
-                    new RenderingDialog(OnScreen.this).show();
+                    new AnimationsDialog(OnScreen.this).show();
                   } /*onClick*/
               } /*OnClickListener*/
           );
@@ -110,8 +108,8 @@ public class OnScreen extends android.app.Activity
     @Override
     public void onPause()
       {
-        super.onPause();
         TheOnScreenView.onPause();
+        super.onPause();
       } /*onPause*/
 
     @Override
@@ -121,4 +119,4 @@ public class OnScreen extends android.app.Activity
         TheOnScreenView.onResume();
       } /*onResume*/
 
-  } /*OnScreen*/
+  } /*OnScreen*/;

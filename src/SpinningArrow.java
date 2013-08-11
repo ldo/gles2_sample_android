@@ -1,6 +1,6 @@
 package nz.gen.geek_central.gles2_sample;
 /*
-    Graphical display of a spinning arrow.
+    Sample animation--graphical display of a spinning arrow.
 
     Copyright 2012, 2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
@@ -17,15 +17,17 @@ package nz.gen.geek_central.gles2_sample;
     the License.
 */
 
+import nz.gen.geek_central.GraphicsUseful.PaintBuilder;
 import nz.gen.geek_central.GLUseful.Vec3f;
 import nz.gen.geek_central.GLUseful.Mat4f;
 import nz.gen.geek_central.GLUseful.Rotation;
 import nz.gen.geek_central.GLUseful.GLUseful;
 import nz.gen.geek_central.GLUseful.GeomBuilder;
 import nz.gen.geek_central.GLUseful.Lathe;
+import nz.gen.geek_central.GLUseful.GLView;
 import static nz.gen.geek_central.GLUseful.GLUseful.gl;
 
-public class SpinningArrow
+public class SpinningArrow extends SampleAnimationCommon
   {
   /* parameters for arrow: */
     private static final float BodyThickness = 0.15f;
@@ -38,16 +40,43 @@ public class SpinningArrow
     private final GLUseful.Color ArrowColor;
 
     private final GeomBuilder.Obj ArrowShape;
-    private double StartTime,  LastDraw;
-    Mat4f ProjectionMatrix;
+    private GLView Background;
+    private Mat4f BGProjection;
 
-    public SpinningArrow
+    public static class ShadedSpinningArrow extends SpinningArrow
+      {
+
+        public ShadedSpinningArrow
+          (
+            android.content.Context ctx
+          )
+          {
+            super(ctx, true);
+          } /*ShadedSpinningArrow*/
+
+      } /*ShadedSpinningArrow*/;
+
+    public static class WireframeSpinningArrow extends SpinningArrow
+      {
+
+        public WireframeSpinningArrow
+          (
+            android.content.Context ctx
+          )
+          {
+            super(ctx, false);
+          } /*WireframeSpinningArrow*/
+
+      } /*WireframeSpinningArrow*/;
+
+    private SpinningArrow
       (
         android.content.Context ctx,
         boolean Shaded
       )
       /* note no GL calls are made in constructor */
       {
+        super(ctx);
         final float OuterTiltCos =
             HeadThickness / (float)Math.hypot(HeadThickness, HeadLengthOuter);
         final float OuterTiltSin =
@@ -169,36 +198,19 @@ public class SpinningArrow
                 /*BindNow =*/ false
               );
         ArrowColor = new GLUseful.Color(ctx.getResources().getColor(R.color.arrow));
-        StartTime = System.currentTimeMillis() / 1000.0;
       } /*SpinningArrow*/
 
-    public void Setup
-      (
-        int ViewWidth,
-        int ViewHeight
-      )
-      /* initial setup for drawing that doesn't need to be done for every frame. */
-      {
-        ProjectionMatrix =
-                Mat4f.frustum
-                  (
-                    /*L =*/ - (float)ViewWidth / ViewHeight,
-                    /*R =*/ (float)ViewWidth / ViewHeight,
-                    /*B =*/ -1.0f,
-                    /*T =*/ 1.0f,
-                    /*N =*/ 1.0f,
-                    /*F =*/ 10.0f
-                  )
-            .mul(
-                Mat4f.translation(new Vec3f(0, 0, -3.0f))
-            );
-      } /*Setup*/
-
+    @Override
     public void Bind()
       {
         ArrowShape.Bind();
+        if (Background != null)
+          {
+            Background.Bind();
+          } /*if*/
       } /*Bind*/
 
+    @Override
     public void Unbind
       (
         boolean Release
@@ -209,15 +221,92 @@ public class SpinningArrow
       /* frees up GL resources associated with this object. */
       {
         ArrowShape.Unbind(Release);
+        if (Background != null)
+          {
+            Background.Unbind(Release);
+          } /*if*/
       } /*Unbind*/
 
-    public void Draw
+    @Override
+    public void Setup
+      (
+        int ViewWidth,
+        int ViewHeight
+      )
+      {
+        super.Setup(ViewWidth, ViewHeight);
+        if (Background != null)
+          {
+            Background.Unbind(true);
+          } /*if*/
+        Background = new GLView
+          (
+            /*BitsWidth =*/ ViewSize,
+            /*BitsHeight =*/ ViewSize,
+            /*BindNow =*/ true
+          );
+          {
+            final float ViewRadius = ViewSize / 2.0f;
+            final android.graphics.Canvas g = Background.Draw;
+            g.save();
+            g.translate(ViewRadius, ViewRadius);
+            g.drawColor(NullColor, android.graphics.PorterDuff.Mode.SRC);
+              /* initialize all pixels to fully transparent */
+            g.drawArc
+              (
+                /*oval =*/ new android.graphics.RectF(-ViewRadius, -ViewRadius, ViewRadius, ViewRadius),
+                /*startAngle =*/ 0.0f,
+                /*sweepAngle =*/ 360.0f,
+                /*useCenter =*/ false,
+                /*paint =*/ new PaintBuilder(true)
+                    .setStyle(android.graphics.Paint.Style.FILL)
+                    .setColor(ctx.getResources().getColor(R.color.background))
+                    .get()
+              );
+              {
+                final String TheText = "Background Text";
+                final android.graphics.Paint TextPaint = new PaintBuilder(true)
+                    .setTextSize(ctx.getResources().getDimension(R.dimen.background_text_size))
+                    .setTextAlign(android.graphics.Paint.Align.CENTER)
+                    .setColor(ctx.getResources().getColor(R.color.background_text))
+                    .get();
+                final android.graphics.Rect TextBounds = new android.graphics.Rect();
+                TextPaint.getTextBounds(TheText, 0, TheText.length(), TextBounds);
+                final float YOffset = - (TextBounds.bottom + TextBounds.top) / 2.0f;
+                  /* for vertical centring */
+                g.drawText(TheText, - ViewRadius / 2.0f, - ViewRadius / 2.0f + YOffset, TextPaint);
+                g.drawText(TheText, ViewRadius / 2.0f, ViewRadius / 2.0f + YOffset, TextPaint);
+              }
+            g.restore();
+            Background.DrawChanged();
+          }
+        BGProjection = Mat4f.scaling
+          (
+            /*sx =*/ ViewWidth > ViewHeight ? ViewHeight * 1.0f / ViewWidth : 1.0f,
+            /*sy =*/ ViewHeight > ViewWidth ? ViewWidth * 1.0f / ViewHeight : 1.0f,
+            /*sz =*/ 1.0f
+          );
+      } /*Setup*/
+
+    protected void OnDraw
       (
         double AtTime
       )
       /* draws the arrow in its orientation according to the specified time. Setup
         must already have been called on current GL context. */
       {
+        if (Background != null)
+          {
+            Background.Draw
+              (
+                /*Projection =*/ BGProjection,
+                /*Left =*/ -1.0f,
+                /*Bottom =*/ -1.0f,
+                /*Right =*/ 1.0f,
+                /*Top =*/ 1.0f,
+                /*Depth =*/ 0.99f /*disappears on some devices at 1.0f*/
+              );
+          } /*if*/
         ArrowShape.Draw
           (
             /*ProjectionMatrix =*/ ProjectionMatrix,
@@ -243,37 +332,6 @@ public class SpinningArrow
                         new GLUseful.ShaderVarVal("vertex_color", ArrowColor),
                     }
           );
-      } /*Draw*/
-
-    public void Draw()
-      /* draws the arrow in its current orientation. */
-      {
-        LastDraw = System.currentTimeMillis() / 1000.0 - StartTime;
-        Draw(LastDraw);
-      } /*Draw*/
-
-    public void DrawAgain()
-      /* redraws the arrow in the same orientation as last time. */
-      {
-        Draw(LastDraw);
-      } /*DrawAgain*/
-
-    public double GetDrawTime()
-      {
-        return
-            LastDraw;
-      } /*GetDrawTime*/
-
-    public void SetDrawTime
-      (
-        double AtTime /* ignored if negative */
-      )
-      {
-        if (AtTime >= 0.0)
-          {
-            StartTime = System.currentTimeMillis() / 1000.0 - AtTime;
-            LastDraw = AtTime;
-          } /*if*/
-      } /*SetDrawTime*/
+      } /*OnDraw*/
 
   } /*SpinningArrow*/;

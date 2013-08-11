@@ -1,6 +1,6 @@
 package nz.gen.geek_central.gles2_sample;
 /*
-    Direct onscreen display of sample animation--the GLSurfaceView where the
+    Onscreen display of sample animation--the GLSurfaceView where the
     animation takes place.
 
     Copyright 2012, 2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
@@ -20,82 +20,132 @@ package nz.gen.geek_central.gles2_sample;
 
 import javax.microedition.khronos.opengles.GL10;
 import nz.gen.geek_central.android.useful.BundledSavedState;
-import nz.gen.geek_central.GraphicsUseful.PaintBuilder;
-import nz.gen.geek_central.GLUseful.Vec3f;
-import nz.gen.geek_central.GLUseful.Mat4f;
-import nz.gen.geek_central.GLUseful.GLUseful;
-import nz.gen.geek_central.GLUseful.GLView;
-import static nz.gen.geek_central.GLUseful.GLUseful.gl;
 
 public class OnScreenView extends android.opengl.GLSurfaceView
   {
-    public android.widget.TextView StatsView;
-    final static boolean DefaultShaded = true;
-    boolean Shaded;
-    double SetDrawTime = -1.0;
-    int LastViewWidth = 0, LastViewHeight = 0;
-    long ThisRun, LastRun, LastTimeTaken;
+    public enum Animations /* all the sample animation classes listed here */
+      {
+        ShadedArrow(R.string.shaded_arrow, SpinningArrow.ShadedSpinningArrow.class),
+        WireframeArrow(R.string.wireframe_arrow, SpinningArrow.WireframeSpinningArrow.class),
+        ;
 
-    private final int NullColor = getResources().getColor(R.color.nothing);
+        public final int NameID;
+        public final Class<? extends SampleAnimationCommon> AnimClass;
+
+        private Animations
+          (
+            int NameID,
+            Class<? extends SampleAnimationCommon> AnimClass
+          )
+          {
+            this.NameID = NameID;
+            this.AnimClass = AnimClass;
+          } /*Animations*/
+
+        public static Animations WithName
+          (
+            int NameID
+          )
+          /* returns the Animations value with the specified name. */
+          {
+            Animations Result;
+            for (int i = 0;;)
+              {
+                if (values()[i].NameID == NameID)
+                  {
+                    Result = values()[i];
+                    break;
+                  } /*if*/
+                ++i;
+              } /*for*/
+            return
+                Result;
+          } /*WithName*/
+
+      } /*Animations*/;
+
+    android.content.Context TheContext;
+    public android.widget.TextView StatsView;
+    int ViewWidth, ViewHeight;
+    double SavedDrawTime = -1.0;
+    Animations CurAnimationChoice;
+    SampleAnimationCommon CurAnimation;
+    boolean NeedSetup;
+
+    private void StartAnimation()
+      /* actually instantiates the currently-chosen animation class.
+        Doesn't do any GL calls. */
+      {
+        try
+          {
+            CurAnimation =
+                CurAnimationChoice.AnimClass.getConstructor(android.content.Context.class)
+                .newInstance(TheContext);
+          }
+        catch (NoSuchMethodException Fail)
+          {
+            throw new RuntimeException(Fail.toString());
+          }
+        catch (InstantiationException Fail)
+          {
+            throw new RuntimeException(Fail.toString());
+          }
+        catch (IllegalAccessException Fail)
+          {
+            throw new RuntimeException(Fail.toString());
+          }
+        catch (IllegalArgumentException Fail)
+          {
+            throw new RuntimeException(Fail.toString());
+          }
+        catch (java.lang.reflect.InvocationTargetException Fail)
+          {
+            throw new RuntimeException(Fail.toString());
+          } /*try*/
+        CurAnimation.SetDrawTime(SavedDrawTime);
+        SavedDrawTime = -1.0;
+        NeedSetup = true;
+      } /*StartAnimation*/
 
     private class OnScreenViewRenderer implements Renderer
       {
       /* Note I ignore the passed GL10 argument, and exclusively use
         static methods from GLES20 class for all OpenGL drawing */
-        SpinningArrow ArrowShape;
-        GLView Background;
-        Mat4f BGProjection;
 
         public void onDrawFrame
           (
             GL10 _gl
           )
           {
-            if (ArrowShape == null)
+            if (CurAnimation != null)
               {
-                ArrowShape = new SpinningArrow(getContext(), Shaded);
-                ArrowShape.Setup(LastViewWidth, LastViewHeight);
-              /* restoring instance state */
-                Render.ArrowShape.SetDrawTime(SetDrawTime);
-                SetDrawTime = - 1.0;
-              } /*if*/
-            ThisRun = android.os.SystemClock.uptimeMillis();
-            GLUseful.ClearColor(new GLUseful.Color(NullColor));
-            gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
-            if (Background != null)
-              {
-                Background.Draw
-                  (
-                    /*Projection =*/ BGProjection,
-                    /*Left =*/ -1.0f,
-                    /*Bottom =*/ -1.0f,
-                    /*Right =*/ 1.0f,
-                    /*Top =*/ 1.0f,
-                    /*Depth =*/ 0.99f /*disappears on some devices at 1.0f*/
-                  );
-              } /*if*/
-            ArrowShape.Draw();
-            LastTimeTaken = android.os.SystemClock.uptimeMillis() - ThisRun;
-            if (StatsView != null)
-              {
-                final String Stats = String.format
-                  (
-                    "%dms@%.2ffps",
-                    LastTimeTaken,
-                    1000.0 / (ThisRun - LastRun)
-                  );
-                getHandler().post
-                  (
-                    new Runnable()
-                      {
-                        public void run()
+                if (NeedSetup)
+                  {
+                    CurAnimation.Setup(ViewWidth, ViewHeight);
+                    NeedSetup = false;
+                  } /*if*/
+                CurAnimation.Draw();
+                if (StatsView != null)
+                  {
+                    final String Stats = String.format
+                      (
+                        "%dms@%.2f(%.2f)fps",
+                        CurAnimation.LastTimeTaken,
+                        1.0 / CurAnimation.SmoothedTimeTaken,
+                        1000.0 / (CurAnimation.ThisRun - CurAnimation.LastRun)
+                      );
+                    post
+                      (
+                        new Runnable()
                           {
-                            StatsView.setText(Stats);
-                          } /*run*/
-                      } /*Runnable*/
-                  );
+                            public void run()
+                              {
+                                StatsView.setText(Stats);
+                              } /*run*/
+                          } /*Runnable*/
+                      );
+                  } /*if*/
               } /*if*/
-            LastRun = ThisRun;
           } /*onDrawFrame*/
 
         public void onSurfaceChanged
@@ -105,67 +155,17 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             int ViewHeight
           )
           {
-            gl.glEnable(gl.GL_CULL_FACE);
-            gl.glEnable(gl.GL_DEPTH_TEST);
-            gl.glViewport(0, 0, ViewWidth, ViewHeight);
-            LastViewWidth = ViewWidth;
-            LastViewHeight = ViewHeight;
-            if (ArrowShape != null)
+            if (CurAnimationChoice != null)
               {
-                ArrowShape.Setup(ViewWidth, ViewHeight);
-              } /*if*/
-            if (Background != null)
-              {
-                Background.Unbind(true);
-              } /*if*/
-            final int ViewSize = Math.min(ViewWidth, ViewHeight);
-            Background = new GLView
-              (
-                /*BitsWidth =*/ ViewSize,
-                /*BitsHeight =*/ ViewSize,
-                /*BindNow =*/ true
-              );
-              {
-                final float ViewRadius = ViewSize / 2.0f;
-                final android.graphics.Canvas g = Background.Draw;
-                g.save();
-                g.translate(ViewRadius, ViewRadius);
-                g.drawColor(NullColor, android.graphics.PorterDuff.Mode.SRC);
-                  /* initialize all pixels to fully transparent */
-                g.drawArc
-                  (
-                    /*oval =*/ new android.graphics.RectF(-ViewRadius, -ViewRadius, ViewRadius, ViewRadius),
-                    /*startAngle =*/ 0.0f,
-                    /*sweepAngle =*/ 360.0f,
-                    /*useCenter =*/ false,
-                    /*paint =*/ new PaintBuilder(true)
-                        .setStyle(android.graphics.Paint.Style.FILL)
-                        .setColor(getResources().getColor(R.color.background))
-                        .get()
-                  );
+                if (CurAnimation == null)
                   {
-                    final String TheText = "Background Text";
-                    final android.graphics.Paint TextPaint = new PaintBuilder(true)
-                        .setTextSize(getResources().getDimension(R.dimen.background_text_size))
-                        .setTextAlign(android.graphics.Paint.Align.CENTER)
-                        .setColor(getResources().getColor(R.color.background_text))
-                        .get();
-                    final android.graphics.Rect TextBounds = new android.graphics.Rect();
-                    TextPaint.getTextBounds(TheText, 0, TheText.length(), TextBounds);
-                    final float YOffset = - (TextBounds.bottom + TextBounds.top) / 2.0f;
-                      /* for vertical centring */
-                    g.drawText(TheText, - ViewRadius / 2.0f, - ViewRadius / 2.0f + YOffset, TextPaint);
-                    g.drawText(TheText, ViewRadius / 2.0f, ViewRadius / 2.0f + YOffset, TextPaint);
-                  }
-                g.restore();
-                Background.DrawChanged();
-              }
-            BGProjection = Mat4f.scaling
-              (
-                /*sx =*/ ViewWidth > ViewHeight ? ViewHeight * 1.0f / ViewWidth : 1.0f,
-                /*sy =*/ ViewHeight > ViewWidth ? ViewWidth * 1.0f / ViewHeight : 1.0f,
-                /*sz =*/ 1.0f
-              );
+                    StartAnimation();
+                  } /*if*/
+                OnScreenView.this.ViewWidth = ViewWidth;
+                OnScreenView.this.ViewHeight = ViewHeight;
+                CurAnimation.Setup(ViewWidth, ViewHeight);
+                NeedSetup = false;
+              } /*if*/
           } /*onSurfaceChanged*/
 
         public void onSurfaceCreated
@@ -174,8 +174,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
             javax.microedition.khronos.egl.EGLConfig Config
           )
           {
-            ArrowShape = new SpinningArrow(getContext(), Shaded);
-              /* leave actual setup to onSurfaceChanged */
+          /* leave all work to onSurfaceChanged */
           } /*onSurfaceCreated*/
 
       } /*OnScreenViewRenderer*/;
@@ -189,72 +188,78 @@ public class OnScreenView extends android.opengl.GLSurfaceView
       )
       {
         super(TheContext, TheAttributes);
-        Shaded = DefaultShaded;
+        this.TheContext = TheContext;
         setEGLContextClientVersion(2);
         setRenderer(Render);
       /* setRenderMode(RENDERMODE_CONTINUOUSLY); */ /* default */
+        SetAnimation(Animations.values()[0]);
       } /*OnScreenView*/
 
-    public boolean GetShaded()
-      {
-        return
-            Shaded;
-      } /*GetShaded*/
-
-    public void SetShaded
+    public void SetAnimation
       (
-        final boolean NewShaded
+        Animations NewAnimation
       )
       {
-        if (NewShaded != Shaded)
+        if (NewAnimation != CurAnimationChoice)
           {
-            queueEvent
+            final Animations NewAnimationChoice = NewAnimation;
+            queueEvent /* synchronize with animation drawing */
               (
                 new Runnable()
                   {
                     public void run()
                       {
-                        if (Render.ArrowShape != null)
+                        if (CurAnimation != null)
                           {
-                            SetDrawTime = Render.ArrowShape.GetDrawTime(); /* preserve animation continuity */
-                            Render.ArrowShape.Unbind(true);
-                            Render.ArrowShape = null;
-                            Shaded = NewShaded;
+                            SavedDrawTime = CurAnimation.GetDrawTime(); /* preserve animation continuity */
+                            CurAnimation.Unbind(true);
+                            CurAnimation = null;
                           } /*if*/
+                        CurAnimationChoice = NewAnimationChoice;
+                        StartAnimation();
                       } /*run*/
                   } /*Runnable*/
               );
           } /*if*/
-      } /*Reset*/
+      } /*SetAnimation*/
+
+    public Animations GetAnimation()
+      {
+        return
+            CurAnimationChoice;
+      } /*GetAnimation*/
 
     @Override
     public void onPause()
       {
-        if (Render.ArrowShape != null)
+        if (CurAnimation != null)
           {
-            Render.ArrowShape.Unbind(false); /* losing the GL context */
+            SavedDrawTime = CurAnimation.GetDrawTime(); /* preserve animation continuity */
+            CurAnimation.Unbind(false); /* losing the GL context */
+            CurAnimation = null;
           } /*if*/
-        Render.Background = null; /* need to (re)create in onSurfaceChanged anyway */
         super.onPause();
       } /*onPause*/
 
 /*
     Implementation of saving/restoring instance state. Doing this
-    allows me to transparently restore state of animation and
-    rendering if system needs to kill me while I'm in the background,
-    or on an orientation change while I'm in the foreground.
+    allows me to transparently restore state of animation if system
+    needs to kill me while I'm in the background, or on an orientation
+    change while I'm in the foreground.
 */
 
     @Override
     public android.os.Parcelable onSaveInstanceState()
       {
         final android.os.Bundle MyState = new android.os.Bundle();
-        MyState.putBoolean("DrawShaded", Shaded);
-        MyState.putDouble
-          (
-            "ArrowDrawTime",
-            Render.ArrowShape != null ? Render.ArrowShape.GetDrawTime() : -1.0
-          );
+        if (CurAnimationChoice != null)
+          {
+            MyState.putInt("AnimationName", CurAnimationChoice.NameID);
+            if (CurAnimation != null)
+              {
+                MyState.putDouble("DrawTime", CurAnimation.GetDrawTime());
+              } /*if*/
+          } /*if*/
         return
             new BundledSavedState(super.onSaveInstanceState(), MyState);
       } /*onSaveInstanceState*/
@@ -267,8 +272,12 @@ public class OnScreenView extends android.opengl.GLSurfaceView
       {
         super.onRestoreInstanceState(((BundledSavedState)SavedState).SuperState);
         final android.os.Bundle MyState = ((BundledSavedState)SavedState).MyState;
-        Shaded = MyState.getBoolean("DrawShaded", DefaultShaded);
-        SetDrawTime = MyState.getDouble("ArrowDrawTime", -1.0);
+        final int AnimationName = MyState.getInt("AnimationName", 0);
+        if (AnimationName != 0)
+          {
+            CurAnimationChoice = Animations.WithName(AnimationName);
+          } /*if*/
+        SavedDrawTime = MyState.getDouble("DrawTime", -1.0);
       } /*onRestoreInstanceState*/
 
   } /*OnScreenView*/;

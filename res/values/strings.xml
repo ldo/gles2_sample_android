@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">GLES 2.0 Sample</string>
 
-    <string name="rendering">Rendering</string>
-    <string name="shaded">Shaded</string>
-    <string name="wireframe">Wireframe</string>
+    <string name="choose_animation">Choose Animation</string>
+    <string name="shaded_arrow">Shaded Arrow</string>
+    <string name="wireframe_arrow">Wireframe Arrow</string>
 </resources>
