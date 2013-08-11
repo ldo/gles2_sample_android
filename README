@@ -25,6 +25,7 @@ The source code includes the following Java utility classes:
     homogeneous coordinates
   * PaintBuilder: convenient construction of Paint objects by chaining
     setup calls
+  * Rotation: manipulation of rotation transformations based on quaternions
   * Vec3f: functional operations on vectors representing 3D coordinates
 and the following C utility code:
   * gl_useful.c -- contains an alternative to glGetShaderInfoLog which
