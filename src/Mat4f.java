@@ -546,7 +546,7 @@ public class Mat4f
       (
         int axis, /* AXIS_X, AXIS_Y or AXIS_Z */
         float angle,
-        boolean degrees
+        boolean degrees /* false for radians */
       )
       {
         final float radians = degrees ? (float)Math.toRadians(angle) : angle;
@@ -594,7 +594,7 @@ public class Mat4f
       (
         int axis, /* AXIS_X, AXIS_Y or AXIS_Z */
         float angle,
-        boolean degrees,
+        boolean degrees /* false for radians */,
         Vec3f origin
       )
       {
@@ -606,7 +606,7 @@ public class Mat4f
       (
         Vec3f axis, /* assumed unit vector */
         float angle,
-        boolean degrees
+        boolean degrees /* false for radians */
       )
       /* generates a rotation about an arbitrary axis passing through the origin. */
       {
@@ -635,7 +635,7 @@ public class Mat4f
       (
         Vec3f axis,
         float angle,
-        boolean degrees,
+        boolean degrees /* false for radians */,
         Vec3f origin
       )
       /* generates a rotation about an arbitrary axis. */

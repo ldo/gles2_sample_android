@@ -19,6 +19,7 @@ package nz.gen.geek_central.gles2_sample;
 
 import nz.gen.geek_central.GLUseful.Vec3f;
 import nz.gen.geek_central.GLUseful.Mat4f;
+import nz.gen.geek_central.GLUseful.Rotation;
 import nz.gen.geek_central.GLUseful.GLUseful;
 import nz.gen.geek_central.GLUseful.GeomBuilder;
 import nz.gen.geek_central.GLUseful.Lathe;
@@ -217,19 +218,20 @@ public class SpinningArrow
       /* draws the arrow in its orientation according to the specified time. Setup
         must already have been called on current GL context. */
       {
-        final float Azi = (float)(Math.PI * AtTime);
-        final float Elev = (float)(Math.PI * Math.sin(0.25 * Math.PI * AtTime));
-        final float Roll = (float)(Math.PI / 10.0 * Math.sin(0.25 * Math.PI * AtTime));
         ArrowShape.Draw
           (
             /*ProjectionMatrix =*/ ProjectionMatrix,
             /*ModelViewMatrix =*/
-                    Mat4f.rotation(Mat4f.AXIS_Z, Azi, false)
+                new Rotation
+                  (
+                    /*angle =*/ (float)(AtTime * Math.PI),
+                    /*degrees =*/ false,
+                    /*axis =*/
+                        new Rotation((float)(AtTime * Math.PI / 10.0), false, 0, 0, 1)
+                            .GetMatrix()
+                            .xform(new Vec3f(1, 0, 0))
+                   ).GetMatrix()
                 .mul(
-                    Mat4f.rotation(Mat4f.AXIS_X, Elev, false)
-                ).mul(
-                    Mat4f.rotation(Mat4f.AXIS_Y, Roll, false)
-                ).mul(
                     Mat4f.scaling(2.0f, 2.0f, 2.0f)
                 ),
             /*Uniforms =*/
