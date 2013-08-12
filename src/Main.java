@@ -1,6 +1,6 @@
 package nz.gen.geek_central.gles2_sample;
 /*
-    Direct onscreen display of sample animation.
+    GLES 2.0 sample--mainline.
 
     Copyright 2012, 2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
@@ -17,7 +17,7 @@ package nz.gen.geek_central.gles2_sample;
     the License.
 */
 
-public class OnScreen extends android.app.Activity
+public class Main extends android.app.Activity
   {
     OnScreenView TheOnScreenView;
 
@@ -87,7 +87,7 @@ public class OnScreen extends android.app.Activity
       )
       {
         super.onCreate(ToRestore);
-        setContentView(R.layout.onscreen);
+        setContentView(R.layout.main);
         TheOnScreenView = (OnScreenView)findViewById(R.id.main);
         TheOnScreenView.StatsView = (android.widget.TextView)findViewById(R.id.stats);
         TheOnScreenView.setOnClickListener
@@ -99,7 +99,7 @@ public class OnScreen extends android.app.Activity
                     android.view.View TheView
                   )
                   {
-                    new AnimationsDialog(OnScreen.this).show();
+                    new AnimationsDialog(Main.this).show();
                   } /*onClick*/
               } /*OnClickListener*/
           );
@@ -119,4 +119,4 @@ public class OnScreen extends android.app.Activity
         TheOnScreenView.onResume();
       } /*onResume*/
 
-  } /*OnScreen*/;
+  } /*Main*/;
