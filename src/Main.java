@@ -59,7 +59,7 @@ public class Main extends android.app.Activity
                 final android.widget.RadioButton ThisChoice = new android.widget.RadioButton(ctx);
                 ThisChoice.setText(Animation.NameID);
                 ThisChoice.setId(Animation.NameID);
-                TheButtons.addView(ThisChoice, TheButtons.getChildCount(), ButtonLayout);
+                TheButtons.addView(ThisChoice, -1 /*append*/, ButtonLayout);
               }
             MainLayout.addView(TheButtons, ButtonLayout);
             TheButtons.check(TheOnScreenView.GetAnimation().NameID);

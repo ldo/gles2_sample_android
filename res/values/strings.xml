@@ -3,6 +3,8 @@
     <string name="app_name">GLES 2.0 Sample</string>
 
     <string name="choose_animation">Choose Animation</string>
+
+<!-- animation names: -->
     <string name="shaded_arrow">Shaded Arrow</string>
     <string name="wireframe_arrow">Wireframe Arrow</string>
 </resources>
