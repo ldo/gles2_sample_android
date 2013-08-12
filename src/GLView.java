@@ -140,6 +140,7 @@ public class GLView
       {
         if (!Bound)
           {
+            GLUseful.ClearError();
               {
                 final int[] TextureIDs = new int[1];
                 gl.glGenTextures(1, TextureIDs, 0);
