@@ -125,7 +125,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                     NeedSetup = false;
                   } /*if*/
                 CurAnimation.Draw();
-                if (StatsView != null)
+                if (StatsView != null && StatsView.getHandler() != null)
                   {
                     final String Stats = String.format
                       (
@@ -134,7 +134,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                         1.0 / CurAnimation.SmoothedTimeTaken,
                         1000.0 / (CurAnimation.ThisRun - CurAnimation.LastRun)
                       );
-                    post
+                    StatsView.post
                       (
                         new Runnable()
                           {
@@ -267,15 +267,15 @@ public class OnScreenView extends android.opengl.GLSurfaceView
     @Override
     public void onRestoreInstanceState
       (
-        android.os.Parcelable SavedState
+        android.os.Parcelable ToRestore
       )
       {
-        super.onRestoreInstanceState(((BundledSavedState)SavedState).SuperState);
-        final android.os.Bundle MyState = ((BundledSavedState)SavedState).MyState;
+        super.onRestoreInstanceState(((BundledSavedState)ToRestore).SuperState);
+        final android.os.Bundle MyState = ((BundledSavedState)ToRestore).MyState;
         final int AnimationName = MyState.getInt("AnimationName", 0);
         if (AnimationName != 0)
           {
-            CurAnimationChoice = Animations.WithName(AnimationName);
+            SetAnimation(Animations.WithName(AnimationName));
           } /*if*/
         SavedDrawTime = MyState.getDouble("DrawTime", -1.0);
       } /*onRestoreInstanceState*/
