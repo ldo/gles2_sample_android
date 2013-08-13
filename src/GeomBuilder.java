@@ -20,6 +20,7 @@ package nz.gen.geek_central.GLUseful;
 */
 
 import java.util.ArrayList;
+import static nz.gen.geek_central.GLUseful.GLUseful.gl;
 
 public class GeomBuilder
   /*
@@ -36,7 +37,6 @@ public class GeomBuilder
     GeomBuilder class itself makes no GL calls, only GeomBuilder.Obj does.
   */
   {
-    static final android.opengl.GLES20 gl = GLUseful.gl; /* for easier references */
 
     private final boolean Shaded, AutoNormals;
     private final ArrayList<Vec3f> TempPoints, TempPointTexCoords;

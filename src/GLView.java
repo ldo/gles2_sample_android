@@ -18,10 +18,10 @@ package nz.gen.geek_central.GLUseful;
 */
 
 import android.graphics.Bitmap;
+import static nz.gen.geek_central.GLUseful.GLUseful.gl;
 
 public class GLView
   {
-    static final android.opengl.GLES20 gl = GLUseful.gl; /* for easier references */
 
     public final android.graphics.Canvas Draw;
       /* do your drawing into here before calling the Draw method to push it to the GL display */
