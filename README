@@ -9,6 +9,8 @@ such shaders; hopefully this sample will be a slightly more
 interesting one to learn from and build on.
 
 The source code includes the following Java utility classes:
+  * BaseRenderer: simplifies some aspects of implementing a
+    GLSurfaceView.Renderer class.
   * BundledSavedState: generic class for easier implementation of
     save/restore instance state in a custom View
   * GeomBuilder: basic management of 3D object geometry with choice of
@@ -16,9 +18,9 @@ The source code includes the following Java utility classes:
     vertex shader program to implement materials, lighting etc
   * GLUseful: useful OpenGL-related stuff, including error-checking
     and management of shader programs
-  * GLView: takes an image rendered via a Canvas to an offscreen
-    Bitmap and displays it as a texture on a planar rectangle in
-    OpenGL
+  * GLTextureView: displays a texture on a planar rectangle in OpenGL
+  * GLBitmapView: takes an image rendered via a Canvas to an offscreen
+    Bitmap and displays it as a texture via GLTextureView
   * Lathe: uses GeomBuilder to construct objects with rotational
     symmetry
   * Mat4f: functional operations on matrices representing 3D
@@ -38,7 +40,9 @@ Contents:
     README -- this file
     INSTALL -- build/installation instructions
     jni/ -- C sources for the Android app
-    src/ -- Java sources for the Android app
+    src/ -- Java sources for the Android app, split into
+        src/lib/ -- reusable classes as listed above
+        src/app/ -- classes specific to this example app
     res/ -- resources for the Android app
     AndroidManifest.xml, build.xml, *.properties -- for driving
         Google's Android build tools (note that you will have to
