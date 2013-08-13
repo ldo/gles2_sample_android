@@ -18,7 +18,6 @@ package nz.gen.geek_central.gles2_sample;
     the License.
 */
 
-import javax.microedition.khronos.opengles.GL10;
 import nz.gen.geek_central.android.useful.BundledSavedState;
 
 public class OnScreenView extends android.opengl.GLSurfaceView
@@ -69,10 +68,8 @@ public class OnScreenView extends android.opengl.GLSurfaceView
     android.content.Context TheContext;
     public android.widget.TextView StatsView;
 
-    private class OnScreenViewRenderer implements Renderer
+    private class OnScreenViewRenderer extends nz.gen.geek_central.GLUseful.BaseRenderer
       {
-      /* Note I ignore the passed GL10 argument, and exclusively use
-        static methods from GLES20 class for all OpenGL drawing */
 
       /* state that should only be changed on renderer thread: */
         private int ViewWidth, ViewHeight;
@@ -80,6 +77,11 @@ public class OnScreenView extends android.opengl.GLSurfaceView
         public double SavedDrawTime = -1.0;
         public Animations CurAnimationChoice;
         public SampleAnimationCommon CurAnimation;
+
+        public OnScreenViewRenderer()
+          {
+            super(OnScreenView.this);
+          } /*OnScreenViewRenderer*/
 
         public void StartAnimation()
           /* actually instantiates the currently-chosen animation class.
@@ -126,48 +128,7 @@ public class OnScreenView extends android.opengl.GLSurfaceView
               } /*if*/
           } /*StopAnimation*/
 
-        public void Synchronize
-          (
-            final Runnable Task
-          )
-          /* runs Task on the renderer thread and waits for it to complete. */
-          {
-            final Object Sync = new Object();
-            synchronized (Sync)
-              {
-                queueEvent
-                  (
-                    new Runnable()
-                      {
-                        public void run()
-                          {
-                            Task.run();
-                            synchronized (Sync)
-                              {
-                                Sync.notify();
-                              } /*synchronized*/
-                          } /*run*/
-                      } /*Runnable*/
-                  );
-                for (;;)
-                  {
-                    try
-                      {
-                        Sync.wait();
-                        break;
-                      }
-                    catch (InterruptedException HoHum)
-                      {
-                      /* keep waiting */
-                      } /*try*/
-                  } /*for*/
-              } /*synchronized*/
-          } /*Synchronize*/
-
-        public void onDrawFrame
-          (
-            GL10 _gl
-          )
+        public void OnDrawFrame()
           {
             if (CurAnimation != null)
               {
@@ -200,11 +161,10 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                       } /*Runnable*/
                   );
               } /*if*/
-          } /*onDrawFrame*/
+          } /*OnDrawFrame*/
 
-        public void onSurfaceChanged
+        public void OnSurfaceChanged
           (
-            GL10 _gl,
             int ViewWidth,
             int ViewHeight
           )
@@ -220,16 +180,15 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                 CurAnimation.Setup(ViewWidth, ViewHeight);
                 NeedSetup = false;
               } /*if*/
-          } /*onSurfaceChanged*/
+          } /*OnSurfaceChanged*/
 
-        public void onSurfaceCreated
+        public void OnSurfaceCreated
           (
-            GL10 _gl,
             javax.microedition.khronos.egl.EGLConfig Config
           )
           {
-          /* leave all work to onSurfaceChanged */
-          } /*onSurfaceCreated*/
+          /* leave all work to OnSurfaceChanged */
+          } /*OnSurfaceCreated*/
 
       } /*OnScreenViewRenderer*/;
 
@@ -273,8 +232,22 @@ public class OnScreenView extends android.opengl.GLSurfaceView
 
     public Animations GetAnimation()
       {
+        abstract class AnimationGetter
+            implements nz.gen.geek_central.GLUseful.BaseRenderer.RunnableFunc<Animations>
+          {
+          } /*AnimationGetter*/;
         return
-            Render.CurAnimationChoice; /* assume no race conditions! */
+            Render.Synchronize
+              (
+                new AnimationGetter()
+                  {
+                    public Animations Run()
+                      {
+                        return
+                            Render.CurAnimationChoice;
+                      } /*Run*/
+                  } /*BaseRenderer.RunnableFunc*/
+              );
       } /*GetAnimation*/
 
     @Override
