@@ -43,36 +43,50 @@ public class SpinningArrow extends SampleAnimationCommon
     private GLView Background;
     private Mat4f BGProjection;
 
-    public static class ShadedSpinningArrow extends SpinningArrow
+    public static class SmoothShaded extends SpinningArrow
       {
 
-        public ShadedSpinningArrow
+        public SmoothShaded
           (
             android.content.Context ctx
           )
           {
-            super(ctx, true);
-          } /*ShadedSpinningArrow*/
+            super(ctx, true, true);
+          } /*SmoothShaded*/
 
-      } /*ShadedSpinningArrow*/;
+      } /*SmoothShaded*/;
 
-    public static class WireframeSpinningArrow extends SpinningArrow
+    public static class FlatShaded extends SpinningArrow
       {
 
-        public WireframeSpinningArrow
+        public FlatShaded
           (
             android.content.Context ctx
           )
           {
-            super(ctx, false);
-          } /*WireframeSpinningArrow*/
+            super(ctx, true, false);
+          } /*FlatShaded*/
 
-      } /*WireframeSpinningArrow*/;
+      } /*FlatShaded*/;
+
+    public static class Wireframe extends SpinningArrow
+      {
+
+        public Wireframe
+          (
+            android.content.Context ctx
+          )
+          {
+            super(ctx, false, false);
+          } /*Wireframe*/
+
+      } /*Wireframe*/;
 
     private SpinningArrow
       (
         android.content.Context ctx,
-        boolean Shaded
+        boolean Shaded,
+        boolean Smooth
       )
       /* note no GL calls are made in constructor */
       {
@@ -128,31 +142,34 @@ public class SpinningArrow extends SampleAnimationCommon
                       } /*VertexFunc*/,
                 /*NrPoints = */ Points.length,
                 /*Normal =*/
-                    new Lathe.VectorFunc()
-                      {
-                        public Vec3f Get
-                          (
-                            int PointIndex,
-                            int SectorIndex, /* 0 .. NrSectors - 1 */
-                            boolean Upper
-                              /* indicates which of two calls for each point (except for
-                                start and end points, which only get one call each) to allow
-                                for discontiguous shading */
-                          )
+                    Shaded && Smooth ?
+                        new Lathe.VectorFunc()
                           {
-                            final float FaceAngle =
-                                (float)(2.0 * Math.PI * SectorIndex / NrSectors);
-                            final Vec3f OrigNormal =
-                                Normals[PointIndex - (Upper ? 0 : 1)];
-                            return
-                                new Vec3f
-                                  (
-                                    OrigNormal.x * (float)Math.cos(FaceAngle),
-                                    OrigNormal.y,
-                                    OrigNormal.x * (float)Math.sin(FaceAngle)
-                                  );
-                          } /*Get*/
-                      } /*VectorFunc*/,
+                            public Vec3f Get
+                              (
+                                int PointIndex,
+                                int SectorIndex, /* 0 .. NrSectors - 1 */
+                                boolean Upper
+                                  /* indicates which of two calls for each point (except for
+                                    start and end points, which only get one call each) to allow
+                                    for discontiguous shading */
+                              )
+                              {
+                                final float FaceAngle =
+                                    (float)(2.0 * Math.PI * SectorIndex / NrSectors);
+                                final Vec3f OrigNormal =
+                                    Normals[PointIndex - (Upper ? 0 : 1)];
+                                return
+                                    new Vec3f
+                                      (
+                                        OrigNormal.x * (float)Math.cos(FaceAngle),
+                                        OrigNormal.y,
+                                        OrigNormal.x * (float)Math.sin(FaceAngle)
+                                      );
+                              } /*Get*/
+                          } /*VectorFunc*/
+                    :
+                        null,
                 /*TexCoord = */ null,
                 /*VertexColor =*/ null,
                 /*NrSectors =*/ NrSectors,

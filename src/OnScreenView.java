@@ -25,8 +25,9 @@ public class OnScreenView extends android.opengl.GLSurfaceView
   {
     public enum Animations /* all the sample animation classes listed here */
       {
-        ShadedArrow(R.string.shaded_arrow, SpinningArrow.ShadedSpinningArrow.class),
-        WireframeArrow(R.string.wireframe_arrow, SpinningArrow.WireframeSpinningArrow.class),
+        SmoothShadedArrow(R.string.smooth_shaded_arrow, SpinningArrow.SmoothShaded.class),
+        FlatShadedArrow(R.string.flat_shaded_arrow, SpinningArrow.FlatShaded.class),
+        WireframeArrow(R.string.wireframe_arrow, SpinningArrow.Wireframe.class),
         ;
 
         public final int NameID;

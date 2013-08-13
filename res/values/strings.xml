@@ -5,6 +5,7 @@
     <string name="choose_animation">Choose Animation</string>
 
 <!-- animation names: -->
-    <string name="shaded_arrow">Shaded Arrow</string>
+    <string name="smooth_shaded_arrow">Smooth-Shaded Arrow</string>
+    <string name="flat_shaded_arrow">Flat-Shaded Arrow</string>
     <string name="wireframe_arrow">Wireframe Arrow</string>
 </resources>
