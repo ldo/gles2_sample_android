@@ -65,53 +65,104 @@ public class OnScreenView extends android.opengl.GLSurfaceView
 
       } /*Animations*/;
 
+  /* things that should only be accessed on UI thread: */
     android.content.Context TheContext;
     public android.widget.TextView StatsView;
-    int ViewWidth, ViewHeight;
-    double SavedDrawTime = -1.0;
-    Animations CurAnimationChoice;
-    SampleAnimationCommon CurAnimation;
-    boolean NeedSetup;
-
-    private void StartAnimation()
-      /* actually instantiates the currently-chosen animation class.
-        Doesn't do any GL calls. */
-      {
-        try
-          {
-            CurAnimation =
-                CurAnimationChoice.AnimClass.getConstructor(android.content.Context.class)
-                .newInstance(TheContext);
-          }
-        catch (NoSuchMethodException Fail)
-          {
-            throw new RuntimeException(Fail.toString());
-          }
-        catch (InstantiationException Fail)
-          {
-            throw new RuntimeException(Fail.toString());
-          }
-        catch (IllegalAccessException Fail)
-          {
-            throw new RuntimeException(Fail.toString());
-          }
-        catch (IllegalArgumentException Fail)
-          {
-            throw new RuntimeException(Fail.toString());
-          }
-        catch (java.lang.reflect.InvocationTargetException Fail)
-          {
-            throw new RuntimeException(Fail.toString());
-          } /*try*/
-        CurAnimation.SetDrawTime(SavedDrawTime);
-        SavedDrawTime = -1.0;
-        NeedSetup = true;
-      } /*StartAnimation*/
 
     private class OnScreenViewRenderer implements Renderer
       {
       /* Note I ignore the passed GL10 argument, and exclusively use
         static methods from GLES20 class for all OpenGL drawing */
+
+      /* state that should only be changed on renderer thread: */
+        private int ViewWidth, ViewHeight;
+        private boolean NeedSetup;
+        public double SavedDrawTime = -1.0;
+        public Animations CurAnimationChoice;
+        public SampleAnimationCommon CurAnimation;
+
+        public void StartAnimation()
+          /* actually instantiates the currently-chosen animation class.
+            Doesn't do any GL calls, but must run on renderer thread. */
+          {
+            try
+              {
+                CurAnimation =
+                    CurAnimationChoice.AnimClass.getConstructor(android.content.Context.class)
+                    .newInstance(TheContext);
+              }
+            catch (NoSuchMethodException Fail)
+              {
+                throw new RuntimeException(Fail.toString());
+              }
+            catch (InstantiationException Fail)
+              {
+                throw new RuntimeException(Fail.toString());
+              }
+            catch (IllegalAccessException Fail)
+              {
+                throw new RuntimeException(Fail.toString());
+              }
+            catch (IllegalArgumentException Fail)
+              {
+                throw new RuntimeException(Fail.toString());
+              }
+            catch (java.lang.reflect.InvocationTargetException Fail)
+              {
+                throw new RuntimeException(Fail.toString());
+              } /*try*/
+            CurAnimation.SetDrawTime(SavedDrawTime);
+            SavedDrawTime = -1.0;
+            NeedSetup = true;
+          } /*StartAnimation*/
+
+        public void StopAnimation()
+          {
+            if (CurAnimation != null)
+              {
+                SavedDrawTime = CurAnimation.GetDrawTime(); /* preserve animation continuity */
+                CurAnimation.Unbind(true);
+                CurAnimation = null;
+              } /*if*/
+          } /*StopAnimation*/
+
+        public void Synchronize
+          (
+            final Runnable Task
+          )
+          /* runs Task on the renderer thread and waits for it to complete. */
+          {
+            final Object Sync = new Object();
+            synchronized (Sync)
+              {
+                queueEvent
+                  (
+                    new Runnable()
+                      {
+                        public void run()
+                          {
+                            Task.run();
+                            synchronized (Sync)
+                              {
+                                Sync.notify();
+                              } /*synchronized*/
+                          } /*run*/
+                      } /*Runnable*/
+                  );
+                for (;;)
+                  {
+                    try
+                      {
+                        Sync.wait();
+                        break;
+                      }
+                    catch (InterruptedException HoHum)
+                      {
+                      /* keep waiting */
+                      } /*try*/
+                  } /*for*/
+              } /*synchronized*/
+          } /*Synchronize*/
 
         public void onDrawFrame
           (
@@ -120,32 +171,34 @@ public class OnScreenView extends android.opengl.GLSurfaceView
           {
             if (CurAnimation != null)
               {
+                final SampleAnimationCommon CurAnimation = this.CurAnimation;
+                  /* to avoid race conditions in access from UI-thread task below */
                 if (NeedSetup)
                   {
                     CurAnimation.Setup(ViewWidth, ViewHeight);
                     NeedSetup = false;
                   } /*if*/
                 CurAnimation.Draw();
-                if (StatsView != null && StatsView.getHandler() != null)
-                  {
-                    final String Stats = String.format
-                      (
-                        "%dms@%.2f(%.2f)fps",
-                        CurAnimation.LastTimeTaken,
-                        1.0 / CurAnimation.SmoothedTimeTaken,
-                        1000.0 / (CurAnimation.ThisRun - CurAnimation.LastRun)
-                      );
-                    StatsView.post
-                      (
-                        new Runnable()
+                post
+                  (
+                    new Runnable()
+                      {
+                        public void run()
                           {
-                            public void run()
+                            if (StatsView != null)
                               {
+                                final String Stats = String.format
+                                  (
+                                    "%dms@%.2f(%.2f)fps",
+                                    CurAnimation.LastTimeTaken,
+                                    1.0 / CurAnimation.SmoothedTimeTaken,
+                                    1000.0 / (CurAnimation.ThisRun - CurAnimation.LastRun)
+                                  );
                                 StatsView.setText(Stats);
-                              } /*run*/
-                          } /*Runnable*/
-                      );
-                  } /*if*/
+                              } /*if*/
+                          } /*run*/
+                      } /*Runnable*/
+                  );
               } /*if*/
           } /*onDrawFrame*/
 
@@ -162,8 +215,8 @@ public class OnScreenView extends android.opengl.GLSurfaceView
                   {
                     StartAnimation();
                   } /*if*/
-                OnScreenView.this.ViewWidth = ViewWidth;
-                OnScreenView.this.ViewHeight = ViewHeight;
+                this.ViewWidth = ViewWidth;
+                this.ViewHeight = ViewHeight;
                 CurAnimation.Setup(ViewWidth, ViewHeight);
                 NeedSetup = false;
               } /*if*/
@@ -198,47 +251,45 @@ public class OnScreenView extends android.opengl.GLSurfaceView
 
     public void SetAnimation
       (
-        Animations NewAnimation
+        final Animations NewAnimation
       )
       {
-        if (NewAnimation != CurAnimationChoice)
-          {
-            final Animations NewAnimationChoice = NewAnimation;
-            queueEvent /* synchronize with animation drawing */
-              (
-                new Runnable()
+        Render.Synchronize
+          (
+            new Runnable()
+              {
+                public void run()
                   {
-                    public void run()
+                    if (NewAnimation != Render.CurAnimationChoice)
                       {
-                        if (CurAnimation != null)
-                          {
-                            SavedDrawTime = CurAnimation.GetDrawTime(); /* preserve animation continuity */
-                            CurAnimation.Unbind(true);
-                            CurAnimation = null;
-                          } /*if*/
-                        CurAnimationChoice = NewAnimationChoice;
-                        StartAnimation();
-                      } /*run*/
-                  } /*Runnable*/
-              );
-          } /*if*/
+                        Render.StopAnimation();
+                        Render.CurAnimationChoice = NewAnimation;
+                        Render.StartAnimation();
+                      } /*if*/
+                  } /*run*/
+              } /*Runnable*/
+          );
       } /*SetAnimation*/
 
     public Animations GetAnimation()
       {
         return
-            CurAnimationChoice;
+            Render.CurAnimationChoice; /* assume no race conditions! */
       } /*GetAnimation*/
 
     @Override
     public void onPause()
       {
-        if (CurAnimation != null)
-          {
-            SavedDrawTime = CurAnimation.GetDrawTime(); /* preserve animation continuity */
-            CurAnimation.Unbind(false); /* losing the GL context */
-            CurAnimation = null;
-          } /*if*/
+        Render.Synchronize
+          (
+            new Runnable()
+              {
+                public void run()
+                  {
+                    Render.StopAnimation();
+                  } /*run*/
+              } /*Runnable*/
+          );
         super.onPause();
       } /*onPause*/
 
@@ -253,14 +304,27 @@ public class OnScreenView extends android.opengl.GLSurfaceView
     public android.os.Parcelable onSaveInstanceState()
       {
         final android.os.Bundle MyState = new android.os.Bundle();
-        if (CurAnimationChoice != null)
-          {
-            MyState.putInt("AnimationName", CurAnimationChoice.NameID);
-            if (CurAnimation != null)
+        Render.Synchronize
+          (
+            new Runnable()
               {
-                MyState.putDouble("DrawTime", CurAnimation.GetDrawTime());
-              } /*if*/
-          } /*if*/
+                public void run()
+                  {
+                    if (Render.CurAnimationChoice != null)
+                      {
+                        MyState.putInt("AnimationName", Render.CurAnimationChoice.NameID);
+                        MyState.putDouble
+                          (
+                            "DrawTime",
+                            Render.CurAnimation != null ?
+                                Render.CurAnimation.GetDrawTime()
+                            :
+                                Render.SavedDrawTime
+                          );
+                      } /*if*/
+                  } /*run*/
+              } /*Runnable*/
+          );
         return
             new BundledSavedState(super.onSaveInstanceState(), MyState);
       } /*onSaveInstanceState*/
@@ -273,12 +337,12 @@ public class OnScreenView extends android.opengl.GLSurfaceView
       {
         super.onRestoreInstanceState(((BundledSavedState)ToRestore).SuperState);
         final android.os.Bundle MyState = ((BundledSavedState)ToRestore).MyState;
+        Render.SavedDrawTime = MyState.getDouble("DrawTime", -1.0);
         final int AnimationName = MyState.getInt("AnimationName", 0);
         if (AnimationName != 0)
           {
             SetAnimation(Animations.WithName(AnimationName));
           } /*if*/
-        SavedDrawTime = MyState.getDouble("DrawTime", -1.0);
       } /*onRestoreInstanceState*/
 
   } /*OnScreenView*/;
