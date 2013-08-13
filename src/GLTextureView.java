@@ -248,4 +248,3 @@ public class GLTextureView
       } /*OnDefineTexture*/
 
   } /*GLTextureView*/;
-
