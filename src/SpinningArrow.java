@@ -24,7 +24,7 @@ import nz.gen.geek_central.GLUseful.Rotation;
 import nz.gen.geek_central.GLUseful.GLUseful;
 import nz.gen.geek_central.GLUseful.GeomBuilder;
 import nz.gen.geek_central.GLUseful.Lathe;
-import nz.gen.geek_central.GLUseful.GLView;
+import nz.gen.geek_central.GLUseful.GLBitmapView;
 import static nz.gen.geek_central.GLUseful.GLUseful.gl;
 
 public class SpinningArrow extends SampleAnimationCommon
@@ -40,7 +40,7 @@ public class SpinningArrow extends SampleAnimationCommon
     private final GLUseful.Color ArrowColor;
 
     private final GeomBuilder.Obj ArrowShape;
-    private GLView Background;
+    private GLBitmapView Background;
     private Mat4f BGProjection;
 
     public static class SmoothShaded extends SpinningArrow
@@ -256,7 +256,7 @@ public class SpinningArrow extends SampleAnimationCommon
           {
             Background.Unbind(true);
           } /*if*/
-        Background = new GLView
+        Background = new GLBitmapView
           (
             /*BitsWidth =*/ ViewSize,
             /*BitsHeight =*/ ViewSize,
