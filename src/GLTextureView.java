@@ -60,8 +60,6 @@ public class GLTextureView
         VS.append
           (
             "vertex_position.y);\n" +
-              /* Y-coordinate inversion because default Canvas coordinates has Y increasing
-                downwards, while OpenGL has Y increasing upwards */
             "  }/*main*/\n"
           );
         ViewProg = new GLUseful.Program
