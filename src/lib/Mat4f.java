@@ -723,6 +723,37 @@ public class Mat4f
             );
       } /*map_cuboid*/
 
+    public static Mat4f fit_cuboid
+      (
+        Vec3f src_lo,
+        Vec3f src_hi,
+        Vec3f dst_lo,
+        Vec3f dst_hi,
+        boolean outside
+      )
+      /* returns a matrix that does appropriate scaling and translation
+        to fit the axis-aligned cuboid defined by opposite corners src_lo
+        and src_hi to the middle of the one with opposite corners dst_lo
+        and dst_hi without distortion. If outside, then the minimum dimension
+        of the src cuboid will equal the maximum dimension of dst (src
+        fits outside dst); otherwise, the maximum dimension of src will
+        equal the minimum dimension of dst (src fits inside dst). */
+      {
+        final Vec3f scalev = (dst_hi.sub(dst_lo)).div(src_hi.sub(src_lo));
+        final float scale =
+            outside ?
+                (float)Math.max(Math.max(scalev.x, scalev.y), scalev.z)
+            :
+                (float)Math.min(Math.min(scalev.x, scalev.y), scalev.z);
+        return
+                translation((dst_lo.add(dst_hi)).div(2))
+            .mul(
+                scaling(scale, scale, scale)
+            ).mul(
+                translation((src_lo.add(src_hi)).div(2).neg())
+            );
+      } /*fit_cuboid*/
+
     public Vec3f xform
       (
         Vec3f v
@@ -783,5 +814,19 @@ public class Mat4f
         return
             result.toArray(new Vec3f[v.length]);
       } /*dxform*/
+
+    @Override
+    public String toString()
+      {
+        return
+            String.format /* should I worry about locale? */
+              (
+                "Mat4f[[%.3f, %.3f, %.3f, %.3f], [%.3f, %.3f, %.3f, %.3f], [%.3f, %.3f, %.3f, %.3f], [%.3f, %.3f, %.3f, %.3f]]",
+                m11, m12, m13, m14,
+                m21, m22, m23, m24,
+                m31, m32, m33, m34,
+                m41, m42, m43, m44
+              );
+      } /*toString*/
 
   } /*Mat4f*/
