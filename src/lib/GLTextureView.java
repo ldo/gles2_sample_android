@@ -22,6 +22,7 @@ import static nz.gen.geek_central.GLUseful.GLUseful.gl;
 public class GLTextureView
   {
     protected final GLUseful.Program ViewProg;
+    protected final int TextureTarget;
     protected boolean Bound;
     protected int TextureID;
     protected int MappingVar, VertexPositionVar;
@@ -37,6 +38,7 @@ public class GLTextureView
         boolean InvertY,
           /* true if Y-coordinate of texture increases downwards (Canvas convention),
             false if it increases upwards (usual OpenGL convention) */
+        boolean IsSurfaceTexture,
         boolean BindNow
           /* true to do GL calls now, false to defer to later call to Bind or Draw */
       )
@@ -67,8 +69,16 @@ public class GLTextureView
           /* vertex shader: */
             VS.toString(),
           /* fragment shader: */
-                "precision mediump float;\n" +
-                "uniform sampler2D view_image;\n" +
+                "precision mediump float;\n"
+            +
+                (IsSurfaceTexture ?
+                    "#extension GL_OES_EGL_image_external : require\n"
+                :
+                    ""
+                )
+            +
+                "uniform " + (IsSurfaceTexture ? "samplerExternalOES" : "sampler2D") + " view_image;\n"
+            +
                 "varying vec2 image_coord;\n" +
                 "\n" +
                 "void main()\n" +
@@ -85,6 +95,7 @@ public class GLTextureView
                 "  }/*main*/\n",
             BindNow
           );
+        TextureTarget = IsSurfaceTexture ? android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES : gl.GL_TEXTURE_2D;
         Bound = false;
           {
             final java.util.ArrayList<GLUseful.Vec2f> Temp = new java.util.ArrayList<GLUseful.Vec2f>();
@@ -128,13 +139,13 @@ public class GLTextureView
                 gl.glGenTextures(1, TextureIDs, 0);
                 TextureID = TextureIDs[0];
               }
-            gl.glBindTexture(gl.GL_TEXTURE_2D, TextureID);
+            gl.glBindTexture(TextureTarget, TextureID);
             GLUseful.CheckError("binding current texture for view");
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE);
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE);
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR);
-            gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR);
-            gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+            gl.glTexParameteri(TextureTarget, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE);
+            gl.glTexParameteri(TextureTarget, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE);
+            gl.glTexParameteri(TextureTarget, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR);
+            gl.glTexParameteri(TextureTarget, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR);
+            gl.glBindTexture(TextureTarget, 0);
             ViewProg.Use();
             gl.glUniform1i(ViewProg.GetUniform("view_image", true), 0);
             GLUseful.CheckError("setting view texture sampler");
@@ -204,7 +215,7 @@ public class GLTextureView
         gl.glBlendFunc(gl.GL_ONE, gl.GL_ONE_MINUS_SRC_ALPHA); /* for transparency */
         OnDefineTexture();
         ViewIndices.Draw();
-        gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
+        gl.glBindTexture(TextureTarget, 0);
         gl.glBlendFunc(gl.GL_ONE, gl.GL_ZERO); /* restore default */
         gl.glDisable(gl.GL_BLEND); /* restore default */
       } /*Draw*/
@@ -241,7 +252,7 @@ public class GLTextureView
       {
         gl.glActiveTexture(gl.GL_TEXTURE0);
         GLUseful.CheckError("setting current texture for view");
-        gl.glBindTexture(gl.GL_TEXTURE_2D, TextureID);
+        gl.glBindTexture(TextureTarget, TextureID);
         GLUseful.CheckError("binding current texture for view");
       } /*OnDefineTexture*/
 
