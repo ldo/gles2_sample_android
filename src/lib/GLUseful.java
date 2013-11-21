@@ -876,4 +876,79 @@ public class GLUseful
           } /*for*/
       } /*SetUniformVals*/
 
+/*
+    Queries
+
+    These all require a valid GL context.
+*/
+
+    public static boolean[] GetBooleanv
+      (
+        int Query,
+        int NrElts /* size of array */
+      )
+      /* calls glGetBooleanv and returns the result array. */
+      {
+        final boolean[] Result = new boolean[NrElts];
+        gl.glGetBooleanv(Query, Result, 0);
+        return
+            Result;
+      } /*GetBooleanv*/
+
+    public static boolean GetBoolean
+      (
+        int Query
+      )
+      /* calls glGetBooleanv on a single-element array and returns the element value. */
+      {
+        return
+            GetBooleanv(Query, 1)[0];
+      } /*GetBoolean*/
+
+    public static int[] GetIntegerv
+      (
+        int Query,
+        int NrElts /* size of array */
+      )
+      /* calls glGetIntegerv and returns the result array. */
+      {
+        final int[] Result = new int[NrElts];
+        gl.glGetIntegerv(Query, Result, 0);
+        return
+            Result;
+      } /*GetIntegerv*/
+
+    public static int GetInteger
+      (
+        int Query
+      )
+      /* calls glGetIntegerv on a single-element array and returns the element value. */
+      {
+        return
+            GetIntegerv(Query, 1)[0];
+      } /*GetInteger*/
+
+    public static float[] GetFloatv
+      (
+        int Query,
+        int NrElts /* size of array */
+      )
+      /* calls glGetFloatv and returns the result array. */
+      {
+        final float[] Result = new float[NrElts];
+        gl.glGetFloatv(Query, Result, 0);
+        return
+            Result;
+      } /*GetFloatv*/
+
+    public static float GetFloat
+      (
+        int Query
+      )
+      /* calls glGetFloatv on a single-element array and returns the element value. */
+      {
+        return
+            GetFloatv(Query, 1)[0];
+      } /*GetFloat*/
+
   } /*GLUseful*/;
