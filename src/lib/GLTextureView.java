@@ -134,11 +134,7 @@ public class GLTextureView
         if (!Bound)
           {
             GLUseful.ClearError();
-              {
-                final int[] TextureIDs = new int[1];
-                gl.glGenTextures(1, TextureIDs, 0);
-                TextureID = TextureIDs[0];
-              }
+            TextureID = GLUseful.GenTexture();
             gl.glBindTexture(TextureTarget, TextureID);
             GLUseful.CheckError("binding current texture for view");
             gl.glTexParameteri(TextureTarget, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE);

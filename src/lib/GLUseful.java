@@ -877,6 +877,88 @@ public class GLUseful
       } /*SetUniformVals*/
 
 /*
+    Object ID alllocation
+
+    These all require a valid GL context.
+*/
+
+    public static int[] GenBuffers
+      (
+        int NrBuffers
+      )
+      /* allocates and returns the specified number of buffer IDs. */
+      {
+        final int[] Result = new int[NrBuffers];
+        gl.glGenBuffers(NrBuffers, Result, 0);
+        return
+            Result;
+      } /*GenBuffers*/
+
+    public static int GenBuffer()
+      /* allocates and returns a single buffer ID. */
+      {
+        return
+            GenBuffers(1)[0];
+      } /*GenBuffer*/
+
+    public static int[] GenFramebuffers
+      (
+        int NrFramebuffers
+      )
+      /* allocates and returns the specified number of frame-buffer IDs. */
+      {
+        final int[] Result = new int[NrFramebuffers];
+        gl.glGenFramebuffers(NrFramebuffers, Result, 0);
+        return
+            Result;
+      } /*GenFramebuffers*/
+
+    public static int GenFramebuffer()
+      /* allocates and returns a single frame-buffer ID. */
+      {
+        return
+            GenFramebuffers(1)[0];
+      } /*GenFramebuffer*/
+
+    public static int[] GenRenderbuffers
+      (
+        int NrRenderbuffers
+      )
+      /* allocates and returns the specified number of render-buffer IDs. */
+      {
+        final int[] Result = new int[NrRenderbuffers];
+        gl.glGenRenderbuffers(NrRenderbuffers, Result, 0);
+        return
+            Result;
+      } /*GenRenderbuffers*/
+
+    public static int GenRenderbuffer()
+      /* allocates and returns a single render-buffer ID. */
+      {
+        return
+            GenRenderbuffers(1)[0];
+      } /*GenRenderbuffer*/
+
+    public static int[] GenTextures
+      (
+        int NrTextures
+      )
+      /* allocates and returns the specified number of texture IDs. */
+      {
+        final int[] Result = new int[NrTextures];
+        gl.glGenTextures(NrTextures, Result, 0);
+        return
+            Result;
+      } /*GenTextures*/
+
+    public static int GenTexture()
+      /* allocates and returns a single texture ID. */
+      {
+        return
+            GenTextures(1)[0];
+      } /*GenTexture*/
+
+/*
     Queries
 
     These all require a valid GL context.
