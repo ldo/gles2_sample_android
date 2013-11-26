@@ -207,13 +207,13 @@ public class GLTextureView
         ViewProg.Use();
         GLUseful.UniformMatrix4(MappingVar, Mapping);
         ViewCorners.Apply(VertexPositionVar, true);
+        final GLUseful.BlendState PrevBlend = GLUseful.GetBlendState();
         gl.glEnable(gl.GL_BLEND);
         gl.glBlendFunc(gl.GL_ONE, gl.GL_ONE_MINUS_SRC_ALPHA); /* for transparency */
         OnDefineTexture();
         ViewIndices.Draw();
         gl.glBindTexture(TextureTarget, 0);
-        gl.glBlendFunc(gl.GL_ONE, gl.GL_ZERO); /* restore default */
-        gl.glDisable(gl.GL_BLEND); /* restore default */
+        GLUseful.SetBlendState(PrevBlend);
       } /*Draw*/
 
     public void Draw

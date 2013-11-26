@@ -871,7 +871,7 @@ public class GLUseful
       } /*SetUniformVals*/
 
 /*
-    Object ID alllocation
+    Object ID allocation
 
     These all require a valid GL context.
 */
@@ -1074,5 +1074,129 @@ public class GLUseful
         return
             Val[0] != gl.GL_FALSE;
       } /*GetProgramb*/
+
+    public static void SetEnabled
+      (
+        int Cap,
+        boolean Enable
+      )
+      {
+        if (Enable)
+          {
+            gl.glEnable(Cap);
+          }
+        else
+          {
+            gl.glDisable(Cap);
+          } /*if*/
+      } /*SetEnabled*/
+
+    public static class BlendState
+      /* the state of all blendering-related settings */
+      {
+        public final boolean Enabled;
+        public final int EquationRGB, EquationAlpha;
+        public final int FuncSrcRGB, FuncSrcAlpha, FuncDstRGB, FuncDstAlpha;
+        public final float ColorR, ColorG, ColorB, ColorAlpha;
+
+        public BlendState
+          (
+            boolean Enabled,
+            int EquationRGB, int EquationAlpha,
+            int FuncSrcRGB, int FuncSrcAlpha, int FuncDstRGB, int FuncDstAlpha,
+            float ColorR, float ColorG, float ColorB, float ColorAlpha
+          )
+          {
+            this.Enabled = Enabled;
+            this.EquationRGB = EquationRGB;
+            this.EquationAlpha = EquationAlpha;
+            this.FuncSrcRGB = FuncSrcRGB;
+            this.FuncSrcAlpha = FuncSrcAlpha;
+            this.FuncDstRGB = FuncDstRGB;
+            this.FuncDstAlpha = FuncDstAlpha;
+            this.ColorR = ColorR;
+            this.ColorG = ColorG;
+            this.ColorB = ColorB;
+            this.ColorAlpha = ColorAlpha;
+          } /*BlendState*/
+
+      } /*BlendState*/
+
+    public static final BlendState DefaultBlendState = /* as per spec */
+        new BlendState
+          (
+            /*Enabled =*/ false,
+            /*EquationRGB =*/ gl.GL_FUNC_ADD,
+            /*EquationAlpha =*/ gl.GL_FUNC_ADD,
+            /*FuncSrcRGB =*/ gl.GL_ONE,
+            /*FuncSrcAlpha =*/ gl.GL_ONE,
+            /*FuncDstRGB =*/ gl.GL_ZERO,
+            /*FuncDstAlpha =*/ gl.GL_ZERO,
+            /*ColorR =*/ 0.0f,
+            /*ColorG =*/ 0.0f,
+            /*ColorB =*/ 0.0f,
+            /*ColorAlpha =*/ 0.0f
+          );
+
+    public static BlendState GetBlendState()
+      /* returns a copy of the current blend settings. */
+      {
+        final float[] BlendColor = GetFloatv(gl.GL_BLEND_COLOR, 4);
+        return
+            new BlendState
+              (
+                /*Enabled =*/ gl.glIsEnabled(gl.GL_BLEND),
+                /*EquationRGB =*/ GetInteger(gl.GL_BLEND_EQUATION_RGB),
+                /*EquationAlpha =*/ GetInteger(gl.GL_BLEND_EQUATION_ALPHA),
+                /*FuncSrcRGB =*/ GetInteger(gl.GL_BLEND_SRC_RGB),
+                /*FuncSrcAlpha =*/ GetInteger(gl.GL_BLEND_SRC_ALPHA),
+                /*FuncDstRGB =*/ GetInteger(gl.GL_BLEND_DST_RGB),
+                /*FuncDstAlpha =*/ GetInteger(gl.GL_BLEND_DST_ALPHA),
+                /*ColorR =*/ BlendColor[0],
+                /*ColorG =*/ BlendColor[1],
+                /*ColorB =*/ BlendColor[2],
+                /*ColorAlpha =*/ BlendColor[3]
+              );
+      } /*GetBlendState*/
+
+    public static void SetBlendState
+      (
+        BlendState State
+      )
+      /* sets the blend settings to those specified. */
+      {
+        SetEnabled(gl.GL_BLEND, State.Enabled);
+        if
+          (
+                State.EquationRGB != DefaultBlendState.EquationRGB
+            ||
+                State.EquationAlpha != DefaultBlendState.EquationAlpha
+          )
+          /* glBlendEquation and glBlendEquationSeparate seem to be unsupported on some devices */
+          {
+            gl.glBlendEquationSeparate(State.EquationRGB, State.EquationAlpha);
+          } /*if*/
+        if
+          (
+                State.FuncSrcRGB != State.FuncSrcAlpha
+            ||
+                State.FuncDstRGB != State.FuncDstAlpha
+          )
+          {
+          /* glBlendFuncSeparate seems to be unsupported on some devices */
+            gl.glBlendFuncSeparate
+              (
+                State.FuncSrcRGB,
+                State.FuncSrcAlpha,
+                State.FuncDstRGB,
+                State.FuncDstAlpha
+              );
+          }
+        else
+          {
+            gl.glBlendFunc(State.FuncSrcRGB, State.FuncDstRGB);
+          } /*if*/
+        gl.glBlendColor(State.ColorR, State.ColorG, State.ColorB, State.ColorAlpha);
+      } /*SetBlendState*/
 
   } /*GLUseful*/;
