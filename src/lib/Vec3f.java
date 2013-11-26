@@ -86,6 +86,34 @@ public class Vec3f
             v;
       } /*to_floats*/
 
+    public static float to_radians
+      (
+        float angle,
+        boolean from_degrees /* angle is in degrees */
+      )
+      /* returns angle in radians. */
+      {
+        return
+            from_degrees ?
+                (float)Math.toRadians(angle)
+            :
+                angle;
+      } /*to_radians*/
+
+    public static float from_radians
+      (
+        float angle, /* always radians */
+        boolean want_degrees /* result is in degrees */
+      )
+      /* returns angle in radians or degrees, depending on want_degrees. */
+      {
+        return
+            want_degrees ?
+                (float)Math.toDegrees(angle)
+            :
+                angle;
+      } /*from_radians*/
+
     public static Vec3f zero()
       {
         return
@@ -186,18 +214,24 @@ public class Vec3f
               );
       } /*cross*/
 
-    public float azimuth()
+    public float azimuth
+      (
+        boolean want_degrees
+      )
         /* returns the angle between the x-axis and the line from the origin to the point. */
       {
         return
-            (float)Math.atan2(y, x);
+            from_radians((float)Math.atan2(y, x), want_degrees);
       } /*azimuth*/
 
-    public float elevation()
+    public float elevation
+      (
+        boolean want_degrees
+      )
         /* returns the angle between the x-y plane and the line from the origin to the point. */
       {
         return
-            (float)Math.atan2(z, (float)Math.hypot(x, y));
+            from_radians((float)Math.atan2(z, Math.hypot(x, y)), want_degrees);
       } /*elevation*/
 
     public float abs()

@@ -34,7 +34,7 @@ public class Rotation implements android.os.Parcelable
       /* constructs a Rotation that rotates by the specified angle
         about the axis direction (x, y, z). */
       {
-        final double theta = (degrees ? Math.toRadians(angle) : angle) / 2;
+        final double theta = Vec3f.to_radians(angle, degrees) / 2;
         c = (float)Math.cos(theta);
         s = (float)Math.sin(theta);
         final float mag = (float)Math.sqrt(x * x + y * y + z * z); /* mustn't be zero! */
@@ -200,9 +200,8 @@ public class Rotation implements android.os.Parcelable
       )
       /* returns the rotation angle. */
       {
-        final double theta = Math.atan2(s, c);
         return
-            2 * (float)(degrees ? Math.toDegrees(theta) : theta);
+            2 * Vec3f.from_radians((float)Math.atan2(s, c), degrees);
       } /*GetAngle*/
 
     public Vec3f GetAxis()

@@ -549,7 +549,7 @@ public class Mat4f
         boolean degrees /* false for radians */
       )
       {
-        final float radians = degrees ? (float)Math.toRadians(angle) : angle;
+        final float radians = Vec3f.to_radians(angle, degrees);
         final float cos = (float)Math.cos(radians);
         final float sin = (float)Math.sin(radians);
         Mat4f m;
