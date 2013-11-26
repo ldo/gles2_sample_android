@@ -431,9 +431,7 @@ public class GLUseful
                 CheckError("setting shader %d source", id);
                 gl.glCompileShader(id);
                 CheckError("compiling shader %d source", id);
-                int[] Status = new int[1];
-                gl.glGetShaderiv(id, gl.GL_COMPILE_STATUS, Status, 0);
-                if (Status[0] == gl.GL_FALSE)
+                if (!GetShaderb(id, gl.GL_COMPILE_STATUS))
                   {
                     System.err.println
                       (
@@ -539,9 +537,7 @@ public class GLUseful
                 gl.glAttachShader(id, FragmentShader.GetID());
                 CheckError("attaching fragment shader to program %d", id);
                 gl.glLinkProgram(id);
-                int[] Status = new int[1];
-                gl.glGetProgramiv(id, gl.GL_LINK_STATUS, Status, 0);
-                if (Status[0] == gl.GL_FALSE)
+                if (!GetProgramb(id, gl.GL_LINK_STATUS))
                   {
                     throw new RuntimeException
                       (
@@ -585,9 +581,7 @@ public class GLUseful
           {
             Bind();
             gl.glValidateProgram(id);
-            int[] Status = new int[1];
-            gl.glGetProgramiv(id, gl.GL_VALIDATE_STATUS, Status, 0);
-            if (Status[0] == gl.GL_FALSE)
+            if (!GetProgramb(id, gl.GL_VALIDATE_STATUS))
               {
                 throw new RuntimeException
                   (
@@ -1032,5 +1026,53 @@ public class GLUseful
         return
             GetFloatv(Query, 1)[0];
       } /*GetFloat*/
+
+    public static int GetShaderi
+      (
+        int ID,
+        int PName
+      )
+      {
+        int[] Val = new int[1];
+        gl.glGetShaderiv(ID, PName, Val, 0);
+        return
+            Val[0];
+      } /*GetShaderi*/
+
+    public static boolean GetShaderb
+      (
+        int ID,
+        int PName
+      )
+      {
+        int[] Val = new int[1];
+        gl.glGetShaderiv(ID, PName, Val, 0);
+        return
+            Val[0] != gl.GL_FALSE;
+      } /*GetShaderb*/
+
+    public static int GetProgrami
+      (
+        int ID,
+        int PName
+      )
+      {
+        int[] Val = new int[1];
+        gl.glGetProgramiv(ID, PName, Val, 0);
+        return
+            Val[0];
+      } /*GetProgrami*/
+
+    public static boolean GetProgramb
+      (
+        int ID,
+        int PName
+      )
+      {
+        int[] Val = new int[1];
+        gl.glGetProgramiv(ID, PName, Val, 0);
+        return
+            Val[0] != gl.GL_FALSE;
+      } /*GetProgramb*/
 
   } /*GLUseful*/;
