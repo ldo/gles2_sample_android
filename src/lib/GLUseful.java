@@ -680,7 +680,7 @@ public class GLUseful
               } /*if*/
             if (Type != ShaderVarTypes.FLOAT_ARRAY && ArraySizeName != null)
               {
-                throw new RuntimeException("only FLOAT_ARRAY associated ArraySizeName");
+                throw new RuntimeException("only FLOAT_ARRAY can have associated ArraySizeName");
               } /*if*/
           } /*ShaderVarDef*/
 
@@ -1092,7 +1092,7 @@ public class GLUseful
       } /*SetEnabled*/
 
     public static class BlendState
-      /* the state of all blendering-related settings */
+      /* the state of all blending-related settings */
       {
         public final boolean Enabled;
         public final int EquationRGB, EquationAlpha;
