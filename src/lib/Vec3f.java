@@ -1,8 +1,8 @@
 package nz.gen.geek_central.GLUseful;
 /*
-    functional 3D vector operations
+    Functional 3D vector operations. All angles are in radians.
 
-    Copyright 2011, 2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2011-2016 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
     use this file except in compliance with the License. You may obtain a copy of
@@ -21,6 +21,13 @@ public class Vec3f
   /* 3D vectors */
   {
     public final float x, y, z, w;
+
+    public static final float deg = (float)Math.PI / 180;
+      /* multiply degrees by this to convert to radians,
+        divide radians by this to convert to degrees */
+    public static final float circle = 2 * (float)Math.PI;
+      /* multiply fractions of a circle by this to convert to radians,
+        divide radians by this to convert to fractions of a circle */
 
     public Vec3f
       (
@@ -85,34 +92,6 @@ public class Vec3f
         return
             v;
       } /*to_floats*/
-
-    public static float to_radians
-      (
-        float angle,
-        boolean from_degrees /* angle is in degrees */
-      )
-      /* returns angle in radians. */
-      {
-        return
-            from_degrees ?
-                (float)Math.toRadians(angle)
-            :
-                angle;
-      } /*to_radians*/
-
-    public static float from_radians
-      (
-        float angle, /* always radians */
-        boolean want_degrees /* result is in degrees */
-      )
-      /* returns angle in radians or degrees, depending on want_degrees. */
-      {
-        return
-            want_degrees ?
-                (float)Math.toDegrees(angle)
-            :
-                angle;
-      } /*from_radians*/
 
     public static Vec3f zero()
       {
@@ -214,24 +193,18 @@ public class Vec3f
               );
       } /*cross*/
 
-    public float azimuth
-      (
-        boolean want_degrees
-      )
+    public float azimuth()
         /* returns the angle between the x-axis and the line from the origin to the point. */
       {
         return
-            from_radians((float)Math.atan2(y, x), want_degrees);
+            (float)Math.atan2(y, x);
       } /*azimuth*/
 
-    public float elevation
-      (
-        boolean want_degrees
-      )
+    public float elevation()
         /* returns the angle between the x-y plane and the line from the origin to the point. */
       {
         return
-            from_radians((float)Math.atan2(z, Math.hypot(x, y)), want_degrees);
+            (float)Math.atan2(z, Math.hypot(x, y));
       } /*elevation*/
 
     public float abs()

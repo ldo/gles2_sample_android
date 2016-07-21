@@ -331,9 +331,8 @@ public class SpinningArrow extends SampleAnimationCommon
                 new Rotation
                   (
                     /*angle =*/ (float)(AtTime * Math.PI),
-                    /*degrees =*/ false,
                     /*axis =*/
-                        new Rotation((float)(AtTime * Math.PI / 10.0), false, 0, 0, 1)
+                        new Rotation((float)(AtTime * Math.PI / 10.0), 0, 0, 1)
                             .GetMatrix()
                             .xform(new Vec3f(1, 0, 0))
                    ).GetMatrix()

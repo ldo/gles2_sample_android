@@ -1,8 +1,9 @@
 package nz.gen.geek_central.GLUseful;
 /*
     Quaternion representation of 3D rotation transformations.
+    All angles are in radians.
 
-    Copyright 2011, 2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2011-2016 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
     use this file except in compliance with the License. You may obtain a copy of
@@ -26,7 +27,6 @@ public class Rotation implements android.os.Parcelable
     public Rotation
       (
         float angle,
-        boolean degrees, /* false for radians */
         float x,
         float y,
         float z
@@ -34,9 +34,8 @@ public class Rotation implements android.os.Parcelable
       /* constructs a Rotation that rotates by the specified angle
         about the axis direction (x, y, z). */
       {
-        final double theta = Vec3f.to_radians(angle, degrees) / 2;
-        c = (float)Math.cos(theta);
-        s = (float)Math.sin(theta);
+        c = (float)Math.cos(angle / 2);
+        s = (float)Math.sin(angle / 2);
         final float mag = (float)Math.sqrt(x * x + y * y + z * z); /* mustn't be zero! */
         this.x = x / mag;
         this.y = y / mag;
@@ -46,11 +45,10 @@ public class Rotation implements android.os.Parcelable
     public Rotation
       (
         float angle,
-        boolean degrees, /* false for radians */
         Vec3f axis
       )
       {
-        this(angle, degrees, axis.x, axis.y, axis.z);
+        this(angle, axis.x, axis.y, axis.z);
       } /*Rotation*/
 
     public static final Rotation identity = new Rotation(0, 1, 1, 0, 0);
@@ -61,7 +59,8 @@ public class Rotation implements android.os.Parcelable
         float c,
         float x,
         float y,
-        float z
+        float z,
+        Object dummy
       )
       /* internal-use constructor with directly-computed components. Note
         this does not compensate for accumulated rounding errors. */
@@ -167,7 +166,8 @@ public class Rotation implements android.os.Parcelable
                 this.c * that.c - (this.x * that.x + this.y * that.y + this.z * that.z) * s2,
                 (this.y * that.z - this.z * that.y) * s2 + this.c * that.x * that.s + that.c * this.x * this.s,
                 (this.z * that.x - this.x * that.z) * s2 + this.c * that.y * that.s + that.c * this.y * this.s,
-                (this.x * that.y - this.y * that.x) * s2 + this.c * that.z * that.s + that.c * this.z * this.s
+                (this.x * that.y - this.y * that.x) * s2 + this.c * that.z * that.s + that.c * this.z * this.s,
+                null
               );
       } /*mul*/
 
@@ -190,18 +190,15 @@ public class Rotation implements android.os.Parcelable
         return
             new Rotation
               (
-                GetAngle(false) * frac, false, x, y, z
+                GetAngle() * frac, x, y, z
               );
       } /*mul*/
 
-    public float GetAngle
-      (
-        boolean degrees /* false for radians */
-      )
+    public float GetAngle()
       /* returns the rotation angle. */
       {
         return
-            2 * Vec3f.from_radians((float)Math.atan2(s, c), degrees);
+            2 * (float)Math.atan2(s, c);
       } /*GetAngle*/
 
     public Vec3f GetAxis()
@@ -214,7 +211,7 @@ public class Rotation implements android.os.Parcelable
       /* returns a matrix that performs the rotation transformation. */
       {
         return
-            Mat4f.rotation(GetAxis(), GetAngle(false), false);
+            Mat4f.rotation(GetAxis(), GetAngle());
       } /*Apply*/
 
     public String toString()
