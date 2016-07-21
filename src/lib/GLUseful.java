@@ -2,7 +2,7 @@ package nz.gen.geek_central.GLUseful;
 /*
     Useful OpenGL-ES-2.0-related definitions.
 
-    Copyright 2012, 2013 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+    Copyright 2012-2016 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
 
     Licensed under the Apache License, Version 2.0 (the "License"); you may not
     use this file except in compliance with the License. You may obtain a copy of
@@ -205,6 +205,40 @@ public class GLUseful
 
     public static final int Fixed1 = 0x10000; /* for converting between float & fixed values */
 
+    public static java.util.ArrayList<Integer> MakeIntArrayList
+      (
+        int[] FromArray
+      )
+      {
+        final java.util.ArrayList<Integer> Result = new java.util.ArrayList<Integer>();
+        for (int i : FromArray)
+          {
+            Result.add(i);
+          } /*for*/
+        return
+            Result;
+      } /*MakeIntArrayList*/
+
+    public static java.util.ArrayList<Vec2f> MakeVec2fArrayList
+      (
+        float[] FromArray /* length must be even */
+      )
+      /* builds an ArrayList of 2D vectors from alternating x- and y- coord values.*/
+      {
+        final java.util.ArrayList<Vec2f> Result =
+            new java.util.ArrayList<Vec2f>();
+        for (int i = 0;;)
+          {
+            if (i == FromArray.length)
+                break;
+            final float X = FromArray[i++];
+            final float Y = FromArray[i++];
+            Result.add(new Vec2f(X, Y));
+          } /*for*/
+        return
+            Result;
+      } /*MakeVec2fArrayList*/
+
     public static class FixedVec3Buffer
       /* converts a Collection of vectors to a vertex-attribute buffer. */
       {
@@ -285,6 +319,14 @@ public class GLUseful
                 .asIntBuffer()
                 .put(Vals);
             Buf.position(0);
+          } /*FixedVec2Buffer*/
+
+        public FixedVec2Buffer
+          (
+            float[] FromArray /* length must be even */
+          )
+          {
+            this(MakeVec2fArrayList(FromArray));
           } /*FixedVec2Buffer*/
 
         public void Apply
@@ -368,6 +410,15 @@ public class GLUseful
                 .asShortBuffer()
                 .put(Indices);
             Buf.position(0);
+          } /*VertIndexBuffer*/
+
+        public VertIndexBuffer
+          (
+            int[] FromArray,
+            int Mode
+          )
+          {
+            this(MakeIntArrayList(FromArray), Mode);
           } /*VertIndexBuffer*/
 
         public void Draw()

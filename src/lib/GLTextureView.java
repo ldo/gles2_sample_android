@@ -26,8 +26,19 @@ public class GLTextureView
     protected boolean Bound;
     protected int TextureID;
     protected int MappingVar, VertexPositionVar;
-    protected final GLUseful.FixedVec2Buffer ViewCorners;
-    protected final GLUseful.VertIndexBuffer ViewIndices;
+    protected final GLUseful.FixedVec2Buffer ViewCorners =
+        new GLUseful.FixedVec2Buffer
+          (
+            new float[]
+              {
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f,
+                0.0f, 1.0f,
+              }
+          );
+    protected final GLUseful.VertIndexBuffer ViewIndices =
+        new GLUseful.VertIndexBuffer(new int[] {0, 1, 3, 2}, gl.GL_TRIANGLE_STRIP);
 
     public GLTextureView
       (
@@ -97,32 +108,6 @@ public class GLTextureView
           );
         TextureTarget = IsSurfaceTexture ? GLUseful.GL_TEXTURE_EXTERNAL_OES : gl.GL_TEXTURE_2D;
         Bound = false;
-          {
-            final java.util.ArrayList<GLUseful.Vec2f> Temp = new java.util.ArrayList<GLUseful.Vec2f>();
-            for
-              (
-                GLUseful.Vec2f Vec :
-                    new GLUseful.Vec2f[]
-                        {
-                            new GLUseful.Vec2f(0.0f, 0.0f),
-                            new GLUseful.Vec2f(1.0f, 0.0f),
-                            new GLUseful.Vec2f(1.0f, 1.0f),
-                            new GLUseful.Vec2f(0.0f, 1.0f),
-                        }
-              )
-              {
-                Temp.add(Vec);
-              } /*for*/
-            ViewCorners = new GLUseful.FixedVec2Buffer(Temp);
-          }
-          {
-            final java.util.ArrayList<Integer> Temp = new java.util.ArrayList<Integer>();
-            for (int i : new int[] {0, 1, 3, 2})
-              {
-                Temp.add(i);
-              } /*for*/
-            ViewIndices = new GLUseful.VertIndexBuffer(Temp, gl.GL_TRIANGLE_STRIP);
-          }
         if (BindNow)
           {
             Bind();
