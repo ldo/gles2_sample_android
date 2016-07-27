@@ -22,7 +22,8 @@ public class Vec3f
   {
     public final float x, y, z, w;
 
-    public static final float deg = (float)Math.PI / 180;
+    public static final float PI = (float)Math.PI;
+    public static final float deg = PI / 180;
       /* multiply degrees by this to convert to radians,
         divide radians by this to convert to degrees */
     public static final float circle = 2 * (float)Math.PI;
